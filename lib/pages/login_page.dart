@@ -17,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool rememberMe = false;
   bool hidePassword = true;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -26,6 +27,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void showMessage(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -34,9 +39,48 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void login() {
+  Future<void> login() async {
+    if (isLoading) return;
+
     final String username = usernameController.text.trim();
     final String password = passwordController.text.trim();
+
+    // ==========================================================
+    // VALIDASI USERNAME
+    // ==========================================================
+
+    if (username.isEmpty) {
+      showMessage('Username wajib diisi.');
+      return;
+    }
+
+    // ==========================================================
+    // VALIDASI PASSWORD
+    // ==========================================================
+
+    if (password.isEmpty) {
+      showMessage('Password wajib diisi.');
+      return;
+    }
+
+    // ==========================================================
+    // LOADING LOGIN
+    // ==========================================================
+
+    setState(() {
+      isLoading = true;
+    });
+
+    // Simulasi proses autentikasi
+    await Future.delayed(
+      const Duration(milliseconds: 800),
+    );
+
+    if (!mounted) return;
+
+    // ==========================================================
+    // CEK AKUN
+    // ==========================================================
 
     if (username == 'admin' && password == 'admin123') {
       Navigator.pushReplacement(
@@ -46,7 +90,13 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } else {
-      showMessage('Username atau password salah.');
+      setState(() {
+        isLoading = false;
+      });
+
+      showMessage(
+        'Username atau password salah.',
+      );
     }
   }
 
@@ -60,7 +110,8 @@ class _LoginPageState extends State<LoginPage> {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final bool desktop = constraints.maxWidth >= 800;
+              final bool desktop =
+                  constraints.maxWidth >= 800;
 
               return SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -90,9 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                                 size: 30,
                               ),
                             ),
-
                             const SizedBox(width: 14),
-
                             const Text(
                               'SIA-TU SEKOLAH',
                               style: TextStyle(
@@ -201,7 +250,8 @@ class _LoginPageState extends State<LoginPage> {
               width: 430,
               height: 430,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color:
+                    Colors.white.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
             ),
@@ -218,7 +268,8 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF3296BB)
                       .withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(130),
+                  borderRadius:
+                      BorderRadius.circular(130),
                 ),
               ),
             ),
@@ -231,8 +282,10 @@ class _LoginPageState extends State<LoginPage> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(25),
+                color:
+                    Colors.white.withValues(alpha: 0.10),
+                borderRadius:
+                    BorderRadius.circular(25),
               ),
             ),
           ),
@@ -244,7 +297,8 @@ class _LoginPageState extends State<LoginPage> {
               width: 58,
               height: 58,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.10),
+                color:
+                    Colors.white.withValues(alpha: 0.10),
                 shape: BoxShape.circle,
               ),
             ),
@@ -254,7 +308,8 @@ class _LoginPageState extends State<LoginPage> {
             child: Padding(
               padding: const EdgeInsets.all(35),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment:
+                    MainAxisAlignment.center,
                 children: [
                   Transform.rotate(
                     angle: -0.2,
@@ -263,11 +318,16 @@ class _LoginPageState extends State<LoginPage> {
                       height: 90,
                       decoration: const BoxDecoration(
                         color: Color(0xFF7298BA),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(50),
-                          topRight: Radius.circular(10),
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(50),
+                        borderRadius:
+                            BorderRadius.only(
+                          topLeft:
+                              Radius.circular(50),
+                          topRight:
+                              Radius.circular(10),
+                          bottomLeft:
+                              Radius.circular(10),
+                          bottomRight:
+                              Radius.circular(50),
                         ),
                       ),
                     ),
@@ -293,7 +353,8 @@ class _LoginPageState extends State<LoginPage> {
                     height: 6,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFF963F),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius:
+                          BorderRadius.circular(10),
                     ),
                   ),
 
@@ -347,7 +408,8 @@ class _LoginPageState extends State<LoginPage> {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color:
+                    Colors.white.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
             ),
@@ -364,7 +426,8 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF3296BB)
                       .withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(130),
+                  borderRadius:
+                      BorderRadius.circular(130),
                 ),
               ),
             ),
@@ -377,7 +440,8 @@ class _LoginPageState extends State<LoginPage> {
                 vertical: 15,
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment:
+                    MainAxisAlignment.center,
                 children: [
                   Transform.rotate(
                     angle: -0.2,
@@ -386,11 +450,16 @@ class _LoginPageState extends State<LoginPage> {
                       height: 65,
                       decoration: const BoxDecoration(
                         color: Color(0xFF7298BA),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(40),
-                          topRight: Radius.circular(8),
-                          bottomLeft: Radius.circular(8),
-                          bottomRight: Radius.circular(40),
+                        borderRadius:
+                            BorderRadius.only(
+                          topLeft:
+                              Radius.circular(40),
+                          topRight:
+                              Radius.circular(8),
+                          bottomLeft:
+                              Radius.circular(8),
+                          bottomRight:
+                              Radius.circular(40),
                         ),
                       ),
                     ),
@@ -416,14 +485,16 @@ class _LoginPageState extends State<LoginPage> {
                     height: 5,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFF963F),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius:
+                          BorderRadius.circular(10),
                     ),
                   ),
 
                   const SizedBox(height: 13),
 
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8),
                     child: Text(
                       'Silahkan masuk ke dalam sistem menggunakan akun '
                       'administrator Tata Usaha Anda untuk mulai '
@@ -528,8 +599,13 @@ class _LoginPageState extends State<LoginPage> {
 
         const SizedBox(height: 30),
 
+        // ======================================================
+        // USERNAME
+        // ======================================================
+
         TextField(
           controller: usernameController,
+          textInputAction: TextInputAction.next,
           decoration: InputDecoration(
             hintText: 'Username / ID Anggota',
             hintStyle: TextStyle(
@@ -540,22 +616,26 @@ class _LoginPageState extends State<LoginPage> {
               Icons.person,
               color: Color(0xFF5C3C91),
             ),
-            contentPadding: const EdgeInsets.symmetric(
+            contentPadding:
+                const EdgeInsets.symmetric(
               vertical: 18,
               horizontal: 15,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: Color(0xFFD1DCE8),
                 width: 1.2,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: Color(0xFF287EB4),
                 width: 1.5,
@@ -566,9 +646,15 @@ class _LoginPageState extends State<LoginPage> {
 
         const SizedBox(height: 15),
 
+        // ======================================================
+        // PASSWORD
+        // ======================================================
+
         TextField(
           controller: passwordController,
           obscureText: hidePassword,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => login(),
           decoration: InputDecoration(
             hintText: 'Password Sistem',
             hintStyle: TextStyle(
@@ -592,22 +678,26 @@ class _LoginPageState extends State<LoginPage> {
                 color: const Color(0xFF9AAAC0),
               ),
             ),
-            contentPadding: const EdgeInsets.symmetric(
+            contentPadding:
+                const EdgeInsets.symmetric(
               vertical: 18,
               horizontal: 15,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: Color(0xFFD1DCE8),
                 width: 1.2,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: Color(0xFF287EB4),
                 width: 1.5,
@@ -618,38 +708,50 @@ class _LoginPageState extends State<LoginPage> {
 
         const SizedBox(height: 12),
 
+        // ======================================================
+        // REMEMBER ME
+        // ======================================================
+
         Row(
           children: [
             Checkbox(
               value: rememberMe,
-              onChanged: (value) {
-                setState(() {
-                  rememberMe = value ?? false;
-                });
-              },
-              activeColor: const Color(0xFF1D4D7A),
+              onChanged: isLoading
+                  ? null
+                  : (value) {
+                      setState(() {
+                        rememberMe =
+                            value ?? false;
+                      });
+                    },
+              activeColor:
+                  const Color(0xFF1D4D7A),
             ),
 
             Expanded(
               child: Text(
                 'Ingat Sesi',
                 style: TextStyle(
-                  color: const Color(0xFF91A5BF),
+                  color:
+                      const Color(0xFF91A5BF),
                   fontSize: bottomFontSize,
                 ),
               ),
             ),
 
             TextButton(
-              onPressed: () {
-                showMessage(
-                  'Fitur lupa password belum tersedia.',
-                );
-              },
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      showMessage(
+                        'Fitur lupa password belum tersedia.',
+                      );
+                    },
               child: Text(
                 'Lupa Password?',
                 style: TextStyle(
-                  color: const Color(0xFF91A5BF),
+                  color:
+                      const Color(0xFF91A5BF),
                   fontSize: bottomFontSize,
                 ),
               ),
@@ -659,27 +761,49 @@ class _LoginPageState extends State<LoginPage> {
 
         const SizedBox(height: 8),
 
+        // ======================================================
+        // LOGIN BUTTON
+        // ======================================================
+
         SizedBox(
           width: double.infinity,
           height: buttonHeight,
           child: ElevatedButton(
-            onPressed: login,
+            onPressed: isLoading ? null : login,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1C4D79),
+              backgroundColor:
+                  const Color(0xFF1C4D79),
               foregroundColor: Colors.white,
+              disabledBackgroundColor:
+                  const Color(0xFF7895AD),
               elevation: 7,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(35),
+                borderRadius:
+                    BorderRadius.circular(35),
               ),
             ),
-            child: Text(
-              'LOGIN',
-              style: TextStyle(
-                fontSize: buttonFontSize,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
+            child: isLoading
+                ? const SizedBox(
+                    width: 23,
+                    height: 23,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor:
+                          AlwaysStoppedAnimation<
+                              Color>(
+                        Colors.white,
+                      ),
+                    ),
+                  )
+                : Text(
+                    'LOGIN',
+                    style: TextStyle(
+                      fontSize: buttonFontSize,
+                      fontWeight:
+                          FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
           ),
         ),
 
@@ -692,6 +816,10 @@ class _LoginPageState extends State<LoginPage> {
 
         const SizedBox(height: 20),
 
+        // ======================================================
+        // DAFTAR
+        // ======================================================
+
         Center(
           child: Wrap(
             alignment: WrapAlignment.center,
@@ -699,23 +827,28 @@ class _LoginPageState extends State<LoginPage> {
               Text(
                 'Belum memiliki akses sistem administrasi? ',
                 style: TextStyle(
-                  color: const Color(0xFF91A5BF),
+                  color:
+                      const Color(0xFF91A5BF),
                   fontSize: bottomFontSize,
                 ),
               ),
 
               GestureDetector(
-                onTap: () {
-                  showMessage(
-                    'Halaman pendaftaran belum tersedia.',
-                  );
-                },
+                onTap: isLoading
+                    ? null
+                    : () {
+                        showMessage(
+                          'Halaman pendaftaran belum tersedia.',
+                        );
+                      },
                 child: Text(
                   'Daftar Sini',
                   style: TextStyle(
-                    color: const Color(0xFF193F68),
+                    color:
+                        const Color(0xFF193F68),
                     fontSize: bottomFontSize,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.bold,
                   ),
                 ),
               ),

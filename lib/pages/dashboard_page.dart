@@ -124,6 +124,8 @@ class DashboardPage extends StatelessWidget {
                 'Data Siswa',
                 false,
                 () {
+                  Navigator.pop(context);
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -140,6 +142,8 @@ class DashboardPage extends StatelessWidget {
                 'Data Guru',
                 false,
                 () {
+                  Navigator.pop(context);
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -245,10 +249,8 @@ class DashboardPage extends StatelessWidget {
 
           const Expanded(
             child: Column(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Sistem Informasi Tata Usaha Sekolah',
@@ -277,8 +279,7 @@ class DashboardPage extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               color: const Color(0xFF205B8B),
-              borderRadius:
-                  BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: const Color(0xFF286D9F),
               ),
@@ -474,8 +475,7 @@ class DashboardPage extends StatelessWidget {
             color: active
                 ? navy
                 : Colors.transparent,
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             children: [
@@ -518,14 +518,12 @@ class DashboardPage extends StatelessWidget {
     BuildContext context,
     String title,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           '$title belum dibuat.',
         ),
-        behavior:
-            SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -544,20 +542,17 @@ class DashboardPage extends StatelessWidget {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (_) =>
-                  const LoginPage(),
+              builder: (_) => const LoginPage(),
             ),
           );
         },
-        borderRadius:
-            BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
         child: Container(
           width: double.infinity,
           height: 55,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: const Color(0xFFFFCACA),
             ),
@@ -579,8 +574,7 @@ class DashboardPage extends StatelessWidget {
                 style: TextStyle(
                   color: Color(0xFFE52323),
                   fontSize: 17,
-                  fontWeight:
-                      FontWeight.w500,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -613,10 +607,6 @@ class DashboardPage extends StatelessWidget {
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
-              // ==================================================
-              // TITLE
-              // ==================================================
-
               if (mobile)
                 Column(
                   crossAxisAlignment:
@@ -643,23 +633,18 @@ class DashboardPage extends StatelessWidget {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 12),
-
                     Container(
                       padding:
                           const EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 8,
                       ),
-                      decoration:
-                          BoxDecoration(
+                      decoration: BoxDecoration(
                         color:
                             const Color(0xFFE4EAF2),
                         borderRadius:
-                            BorderRadius.circular(
-                          25,
-                        ),
+                            BorderRadius.circular(25),
                       ),
                       child: const Text(
                         'Tahun Ajaran 2025/2026 Ganjil',
@@ -682,9 +667,7 @@ class DashboardPage extends StatelessWidget {
                       color: navy,
                       size: 30,
                     ),
-
                     const SizedBox(width: 15),
-
                     const Expanded(
                       child: Text(
                         'DASHBOARD RINGKASAN DATA',
@@ -696,21 +679,17 @@ class DashboardPage extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     Container(
                       padding:
                           const EdgeInsets.symmetric(
                         horizontal: 18,
                         vertical: 9,
                       ),
-                      decoration:
-                          BoxDecoration(
+                      decoration: BoxDecoration(
                         color:
                             const Color(0xFFE4EAF2),
                         borderRadius:
-                            BorderRadius.circular(
-                          25,
-                        ),
+                            BorderRadius.circular(25),
                       ),
                       child: const Text(
                         'Tahun Ajaran 2025/2026 Ganjil',
@@ -734,15 +713,9 @@ class DashboardPage extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // ==================================================
-              // STUDENT + TEACHER
-              // ==================================================
-
               if (mobile) ...[
                 _studentCardMobile(),
-
                 const SizedBox(height: 18),
-
                 _teacherCardMobile(),
               ] else
                 Row(
@@ -752,9 +725,7 @@ class DashboardPage extends StatelessWidget {
                     Expanded(
                       child: _studentCard(),
                     ),
-
                     const SizedBox(width: 30),
-
                     Expanded(
                       child: _teacherCard(),
                     ),
@@ -763,15 +734,9 @@ class DashboardPage extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // ==================================================
-              // CHARTS
-              // ==================================================
-
               if (mobile) ...[
                 _studentChartMobile(),
-
                 const SizedBox(height: 18),
-
                 _graduationChartMobile(),
               ] else
                 Row(
@@ -781,12 +746,9 @@ class DashboardPage extends StatelessWidget {
                     Expanded(
                       child: _studentChart(),
                     ),
-
                     const SizedBox(width: 30),
-
                     Expanded(
-                      child:
-                          _graduationChart(),
+                      child: _graduationChart(),
                     ),
                   ],
                 ),
@@ -804,8 +766,7 @@ class DashboardPage extends StatelessWidget {
   Widget _studentCard() {
     return Container(
       height: 295,
-      padding:
-          const EdgeInsets.all(25),
+      padding: const EdgeInsets.all(25),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
@@ -816,8 +777,7 @@ class DashboardPage extends StatelessWidget {
               alpha: 0.05,
             ),
             blurRadius: 5,
-            offset:
-                const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -832,9 +792,7 @@ class DashboardPage extends StatelessWidget {
                 const Color(0xFFEAF3FF),
                 const Color(0xFF553A91),
               ),
-
               const SizedBox(width: 12),
-
               const Expanded(
                 child: Text(
                   'Total Siswa Aktif',
@@ -857,8 +815,7 @@ class DashboardPage extends StatelessWidget {
               color: Colors.black87,
               fontSize: 42,
               height: 1,
-              fontWeight:
-                  FontWeight.bold,
+              fontWeight: FontWeight.bold,
             ),
           ),
 
@@ -871,20 +828,16 @@ class DashboardPage extends StatelessWidget {
                 color: Color(0xFFE83D62),
                 size: 24,
               ),
-
               Text(
                 '20.8%',
                 style: TextStyle(
-                  color:
-                      Color(0xFFE83D62),
+                  color: Color(0xFFE83D62),
                   fontSize: 15,
                   fontWeight:
                       FontWeight.bold,
                 ),
               ),
-
               SizedBox(width: 5),
-
               Text(
                 'dari tahun lalu',
                 style: TextStyle(
@@ -908,9 +861,7 @@ class DashboardPage extends StatelessWidget {
                   const Color(0xFF4BD18F),
                 ),
               ),
-
               const SizedBox(width: 10),
-
               Expanded(
                 child: _statusBox(
                   'Cuti',
@@ -936,9 +887,7 @@ class DashboardPage extends StatelessWidget {
                   const Color(0xFFFFCB58),
                 ),
               ),
-
               const SizedBox(width: 10),
-
               Expanded(
                 child: _statusBox(
                   'Non Aktif',
@@ -962,8 +911,7 @@ class DashboardPage extends StatelessWidget {
   Widget _studentCardMobile() {
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
@@ -974,8 +922,7 @@ class DashboardPage extends StatelessWidget {
               alpha: 0.05,
             ),
             blurRadius: 5,
-            offset:
-                const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -990,9 +937,7 @@ class DashboardPage extends StatelessWidget {
                 const Color(0xFFEAF3FF),
                 const Color(0xFF553A91),
               ),
-
               const SizedBox(width: 10),
-
               const Expanded(
                 child: Text(
                   'Total Siswa Aktif',
@@ -1015,8 +960,7 @@ class DashboardPage extends StatelessWidget {
               color: Colors.black87,
               fontSize: 36,
               height: 1,
-              fontWeight:
-                  FontWeight.bold,
+              fontWeight: FontWeight.bold,
             ),
           ),
 
@@ -1029,20 +973,16 @@ class DashboardPage extends StatelessWidget {
                 color: Color(0xFFE83D62),
                 size: 22,
               ),
-
               Text(
                 '20.8%',
                 style: TextStyle(
-                  color:
-                      Color(0xFFE83D62),
+                  color: Color(0xFFE83D62),
                   fontSize: 13,
                   fontWeight:
                       FontWeight.bold,
                 ),
               ),
-
               SizedBox(width: 5),
-
               Text(
                 'dari tahun lalu',
                 style: TextStyle(
@@ -1066,9 +1006,7 @@ class DashboardPage extends StatelessWidget {
                   const Color(0xFF4BD18F),
                 ),
               ),
-
               const SizedBox(width: 8),
-
               Expanded(
                 child: _statusBox(
                   'Cuti',
@@ -1094,9 +1032,7 @@ class DashboardPage extends StatelessWidget {
                   const Color(0xFFFFCB58),
                 ),
               ),
-
               const SizedBox(width: 8),
-
               Expanded(
                 child: _statusBox(
                   'Non Aktif',
@@ -1120,8 +1056,7 @@ class DashboardPage extends StatelessWidget {
   Widget _teacherCard() {
     return Container(
       height: 295,
-      padding:
-          const EdgeInsets.all(27),
+      padding: const EdgeInsets.all(27),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
@@ -1132,8 +1067,7 @@ class DashboardPage extends StatelessWidget {
               alpha: 0.05,
             ),
             blurRadius: 5,
-            offset:
-                const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -1148,9 +1082,7 @@ class DashboardPage extends StatelessWidget {
                 const Color(0xFFF0F3F7),
                 const Color(0xFF3D63A3),
               ),
-
               const SizedBox(width: 12),
-
               const Text(
                 'Tenaga Pengajar (Guru)',
                 style: TextStyle(
@@ -1177,16 +1109,13 @@ class DashboardPage extends StatelessWidget {
                     Text(
                       '1',
                       style: TextStyle(
-                        color:
-                            Colors.black87,
+                        color: Colors.black87,
                         fontSize: 42,
                         fontWeight:
                             FontWeight.bold,
                       ),
                     ),
-
                     SizedBox(height: 2),
-
                     Text(
                       'Guru Terdaftar Aktif',
                       style: TextStyle(
@@ -1202,8 +1131,7 @@ class DashboardPage extends StatelessWidget {
                 width: 85,
                 height: 85,
                 child: CustomPaint(
-                  painter:
-                      DonutPainter(),
+                  painter: DonutPainter(),
                 ),
               ),
             ],
@@ -1219,8 +1147,7 @@ class DashboardPage extends StatelessWidget {
 
           const Row(
             mainAxisAlignment:
-                MainAxisAlignment
-                    .spaceBetween,
+                MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Lulus Tahun Ini: 0',
@@ -1229,12 +1156,10 @@ class DashboardPage extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
-
               Text(
                 '0% dari tahun lalu',
                 style: TextStyle(
-                  color:
-                      Color(0xFFFF3030),
+                  color: Color(0xFFFF3030),
                   fontSize: 15,
                 ),
               ),
@@ -1252,8 +1177,7 @@ class DashboardPage extends StatelessWidget {
   Widget _teacherCardMobile() {
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
@@ -1264,8 +1188,7 @@ class DashboardPage extends StatelessWidget {
               alpha: 0.05,
             ),
             blurRadius: 5,
-            offset:
-                const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -1280,9 +1203,7 @@ class DashboardPage extends StatelessWidget {
                 const Color(0xFFF0F3F7),
                 const Color(0xFF3D63A3),
               ),
-
               const SizedBox(width: 10),
-
               const Expanded(
                 child: Text(
                   'Tenaga Pengajar (Guru)',
@@ -1309,16 +1230,13 @@ class DashboardPage extends StatelessWidget {
                     Text(
                       '1',
                       style: TextStyle(
-                        color:
-                            Colors.black87,
+                        color: Colors.black87,
                         fontSize: 36,
                         fontWeight:
                             FontWeight.bold,
                       ),
                     ),
-
                     SizedBox(height: 2),
-
                     Text(
                       'Guru Terdaftar Aktif',
                       style: TextStyle(
@@ -1334,8 +1252,7 @@ class DashboardPage extends StatelessWidget {
                 width: 75,
                 height: 75,
                 child: CustomPaint(
-                  painter:
-                      DonutPainter(),
+                  painter: DonutPainter(),
                 ),
               ),
             ],
@@ -1351,8 +1268,7 @@ class DashboardPage extends StatelessWidget {
 
           const Row(
             mainAxisAlignment:
-                MainAxisAlignment
-                    .spaceBetween,
+                MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Lulus Tahun Ini: 0',
@@ -1361,12 +1277,10 @@ class DashboardPage extends StatelessWidget {
                   fontSize: 13,
                 ),
               ),
-
               Text(
                 '0% dari tahun lalu',
                 style: TextStyle(
-                  color:
-                      Color(0xFFFF3030),
+                  color: Color(0xFFFF3030),
                   fontSize: 13,
                 ),
               ),
@@ -1384,8 +1298,7 @@ class DashboardPage extends StatelessWidget {
   Widget _studentChart() {
     return Container(
       height: 335,
-      padding:
-          const EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         27,
         25,
         27,
@@ -1401,8 +1314,7 @@ class DashboardPage extends StatelessWidget {
               alpha: 0.05,
             ),
             blurRadius: 5,
-            offset:
-                const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -1432,9 +1344,7 @@ class DashboardPage extends StatelessWidget {
                   color:
                       const Color(0xFFDDE4EC),
                 ),
-
                 const SizedBox(width: 35),
-
                 Expanded(
                   child: _barChart(
                     values: const [
@@ -1465,8 +1375,7 @@ class DashboardPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 300,
-      padding:
-          const EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         18,
         20,
         18,
@@ -1482,8 +1391,7 @@ class DashboardPage extends StatelessWidget {
               alpha: 0.05,
             ),
             blurRadius: 5,
-            offset:
-                const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -1513,9 +1421,7 @@ class DashboardPage extends StatelessWidget {
                   color:
                       const Color(0xFFDDE4EC),
                 ),
-
                 const SizedBox(width: 18),
-
                 Expanded(
                   child: _barChart(
                     values: const [
@@ -1545,8 +1451,7 @@ class DashboardPage extends StatelessWidget {
   Widget _graduationChart() {
     return Container(
       height: 335,
-      padding:
-          const EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         27,
         25,
         27,
@@ -1562,8 +1467,7 @@ class DashboardPage extends StatelessWidget {
               alpha: 0.05,
             ),
             blurRadius: 5,
-            offset:
-                const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -1593,12 +1497,9 @@ class DashboardPage extends StatelessWidget {
                   color:
                       const Color(0xFFDDE4EC),
                 ),
-
                 const SizedBox(width: 35),
-
                 Expanded(
-                  child:
-                      _graduationBars(),
+                  child: _graduationBars(),
                 ),
               ],
             ),
@@ -1616,8 +1517,7 @@ class DashboardPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 300,
-      padding:
-          const EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         18,
         20,
         18,
@@ -1633,8 +1533,7 @@ class DashboardPage extends StatelessWidget {
               alpha: 0.05,
             ),
             blurRadius: 5,
-            offset:
-                const Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -1664,12 +1563,9 @@ class DashboardPage extends StatelessWidget {
                   color:
                       const Color(0xFFDDE4EC),
                 ),
-
                 const SizedBox(width: 18),
-
                 Expanded(
-                  child:
-                      _graduationBars(),
+                  child: _graduationBars(),
                 ),
               ],
             ),
@@ -1718,8 +1614,7 @@ class DashboardPage extends StatelessWidget {
               Container(
                 width: 44,
                 height: height,
-                decoration:
-                    BoxDecoration(
+                decoration: BoxDecoration(
                   color: index == 2
                       ? navy
                       : blue,
@@ -1771,8 +1666,7 @@ class DashboardPage extends StatelessWidget {
               height: 120,
               decoration:
                   const BoxDecoration(
-                color:
-                    Color(0xFF2BB5D0),
+                color: Color(0xFF2BB5D0),
                 borderRadius:
                     BorderRadius.only(
                   topLeft:
@@ -1782,9 +1676,7 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 12),
-
             const Text(
               'Ganjil',
               style: TextStyle(
@@ -1804,8 +1696,7 @@ class DashboardPage extends StatelessWidget {
               height: 60,
               decoration:
                   const BoxDecoration(
-                color:
-                    Color(0xFF16B98A),
+                color: Color(0xFF16B98A),
                 borderRadius:
                     BorderRadius.only(
                   topLeft:
@@ -1815,9 +1706,7 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 12),
-
             const Text(
               'Genap',
               style: TextStyle(
@@ -1883,8 +1772,7 @@ class DashboardPage extends StatelessWidget {
           Container(
             width: 13,
             height: 13,
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color: dotColor,
               shape: BoxShape.circle,
             ),

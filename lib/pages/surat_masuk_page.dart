@@ -1,9 +1,10 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
+import 'dashboard_page.dart';
+import 'guru_page.dart';
 import 'login_page.dart';
 import 'siswa_page.dart';
-import 'guru_page.dart';
-import 'dashboard_page.dart';
+import 'surat_keluar_page.dart';
 
 class SuratMasukPage extends StatefulWidget {
   const SuratMasukPage({super.key});
@@ -13,2092 +14,110 @@ class SuratMasukPage extends StatefulWidget {
 }
 
 class _SuratMasukPageState extends State<SuratMasukPage> {
-  // =========================================================
-  // WARNA
-  // =========================================================
+  // ============================================================
+  // COLORS
+  // ============================================================
 
   static const Color navy = Color(0xFF193F68);
-  static const Color blue = Color(0xFF287EB4);
+  static const Color blue = Color(0xFF2F83BA);
   static const Color background = Color(0xFFF1F5F9);
-  static const Color textDark = Color(0xFF34445B);
-  static const Color textGrey = Color(0xFF71839D);
-  static const Color orange = Color(0xFFE67E22);
-  static const Color green = Color(0xFF27AE60);
-  static const Color red = Color(0xFFE74C3C);
+  static const Color textDark = Color(0xFF26364A);
+  static const Color textGrey = Color(0xFF718096);
 
-  // =========================================================
+  static const Color green = Color(0xFF38D39F);
+  static const Color red = Color(0xFFE85D75);
+  static const Color orange = Color(0xFFF4A340);
+
+  // ============================================================
   // DATA SURAT
-  // =========================================================
+  // ============================================================
 
-  final List<Map<String, dynamic>> _suratList = [
+  final List<Map<String, String>> _suratMasuk = [
     {
       'nomor': '001/SM/IX/2026',
-      'tanggal': '01 September 2026',
+      'tanggal': '2026-09-01',
       'asal': 'Dinas Pendidikan',
       'perihal': 'Undangan Rapat Koordinasi',
       'ditujukan': 'Kepala Sekolah',
-      'status': 'Baru',
-      'file': '',
+      'status': 'Sudah Dibaca',
+      'file': 'undangan_rapat.pdf',
     },
     {
       'nomor': '002/SM/IX/2026',
-      'tanggal': '03 September 2026',
-      'asal': 'SMP Negeri 1',
-      'perihal': 'Surat Permohonan Kerja Sama',
-      'ditujukan': 'Kepala Sekolah',
-      'status': 'Diproses',
-      'file': '',
+      'tanggal': '2026-09-05',
+      'asal': 'Kecamatan',
+      'perihal': 'Surat Pemberitahuan Kegiatan',
+      'ditujukan': 'Tata Usaha',
+      'status': 'Belum Dibaca',
+      'file': 'pemberitahuan.pdf',
     },
     {
       'nomor': '003/SM/IX/2026',
-      'tanggal': '05 September 2026',
+      'tanggal': '2026-09-10',
       'asal': 'Komite Sekolah',
-      'perihal': 'Pemberitahuan Kegiatan Sekolah',
-      'ditujukan': 'Wakil Kepala Sekolah',
-      'status': 'Selesai',
-      'file': '',
+      'perihal': 'Permohonan Pertemuan',
+      'ditujukan': 'Kepala Sekolah',
+      'status': 'Sudah Dibaca',
+      'file': 'permohonan.pdf',
     },
   ];
 
-  final TextEditingController _searchController = TextEditingController();
+  // ============================================================
+  // SEARCH
+  // ============================================================
 
-  String _searchQuery = '';
+  final TextEditingController _searchController =
+      TextEditingController();
 
-  // =========================================================
-  // INIT
-  // =========================================================
+  String _searchText = '';
 
-  @override
-  void initState() {
-    super.initState();
+  // ============================================================
+  // FORM CONTROLLER
+  // ============================================================
 
-    _searchController.addListener(() {
-      setState(() {
-        _searchQuery = _searchController.text.toLowerCase();
-      });
-    });
-  }
+  final TextEditingController _nomorController =
+      TextEditingController();
+
+  final TextEditingController _tanggalController =
+      TextEditingController();
+
+  final TextEditingController _asalController =
+      TextEditingController();
+
+  final TextEditingController _perihalController =
+      TextEditingController();
+
+  final TextEditingController _ditujukanController =
+      TextEditingController();
+
+  final TextEditingController _fileController =
+      TextEditingController();
+
+  String _statusController = 'Belum Dibaca';
+
+  int? _editingIndex;
+
+  // ============================================================
+  // DISPOSE
+  // ============================================================
 
   @override
   void dispose() {
     _searchController.dispose();
+
+    _nomorController.dispose();
+    _tanggalController.dispose();
+    _asalController.dispose();
+    _perihalController.dispose();
+    _ditujukanController.dispose();
+    _fileController.dispose();
+
     super.dispose();
   }
 
-  // =========================================================
-  // FILTER DATA
-  // =========================================================
-
-  List<Map<String, dynamic>> get _filteredSurat {
-    if (_searchQuery.isEmpty) {
-      return List<Map<String, dynamic>>.from(_suratList);
-    }
-
-    return _suratList.where((surat) {
-      final nomor = surat['nomor'].toString().toLowerCase();
-      final asal = surat['asal'].toString().toLowerCase();
-      final perihal = surat['perihal'].toString().toLowerCase();
-
-      return nomor.contains(_searchQuery) ||
-          asal.contains(_searchQuery) ||
-          perihal.contains(_searchQuery);
-    }).toList();
-  }
-
-  // =========================================================
-  // PILIH FILE
-  // =========================================================
-
-  Future<String?> _pickFile() async {
-    try {
-      final files = await FilePicker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: [
-          'pdf',
-          'jpg',
-          'jpeg',
-          'png',
-          'doc',
-          'docx',
-        ],
-      );
-
-      if (files.isEmpty) {
-        return null;
-      }
-
-      return files.first.name;
-    } catch (e) {
-      if (!mounted) return null;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal memilih file: $e'),
-          backgroundColor: red,
-        ),
-      );
-
-      return null;
-    }
-  }
-
-  // =========================================================
-  // TAMBAH SURAT
-  // =========================================================
-
-  void _showAddDialog() {
-    _showSuratDialog();
-  }
-
-  // =========================================================
-  // EDIT SURAT
-  // =========================================================
-
-  void _showEditDialog(Map<String, dynamic> surat, int index) {
-    _showSuratDialog(
-      surat: surat,
-      index: index,
-    );
-  }
-
-  // =========================================================
-  // FORM SURAT
-  // =========================================================
-
-  void _showSuratDialog({
-    Map<String, dynamic>? surat,
-    int? index,
-  }) {
-    final bool isEdit = surat != null;
-
-    final nomorController = TextEditingController(
-      text: surat?['nomor']?.toString() ?? '',
-    );
-
-    final tanggalController = TextEditingController(
-      text: surat?['tanggal']?.toString() ?? '',
-    );
-
-    final asalController = TextEditingController(
-      text: surat?['asal']?.toString() ?? '',
-    );
-
-    final perihalController = TextEditingController(
-      text: surat?['perihal']?.toString() ?? '',
-    );
-
-    final ditujukanController = TextEditingController(
-      text: surat?['ditujukan']?.toString() ?? '',
-    );
-
-    String status = surat?['status']?.toString() ?? 'Baru';
-
-    String fileName = surat?['file']?.toString() ?? '';
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              title: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: blue.withOpacity(0.10),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.mail_outline,
-                      color: blue,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    isEdit ? 'Edit Surat Masuk' : 'Tambah Surat Masuk',
-                    style: const TextStyle(
-                      color: navy,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
-              content: SizedBox(
-                width: 600,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _buildTextField(
-                        controller: nomorController,
-                        label: 'Nomor Surat',
-                        hint: 'Contoh: 004/SM/IX/2026',
-                        icon: Icons.numbers,
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      _buildTextField(
-                        controller: tanggalController,
-                        label: 'Tanggal Surat',
-                        hint: 'Contoh: 10 September 2026',
-                        icon: Icons.calendar_today_outlined,
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      _buildTextField(
-                        controller: asalController,
-                        label: 'Asal Surat',
-                        hint: 'Contoh: Dinas Pendidikan',
-                        icon: Icons.business_outlined,
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      _buildTextField(
-                        controller: perihalController,
-                        label: 'Perihal',
-                        hint: 'Masukkan perihal surat',
-                        icon: Icons.subject,
-                        maxLines: 2,
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      _buildTextField(
-                        controller: ditujukanController,
-                        label: 'Ditujukan Kepada',
-                        hint: 'Contoh: Kepala Sekolah',
-                        icon: Icons.person_outline,
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      // STATUS
-                      DropdownButtonFormField<String>(
-                        initialValue: status,
-                        decoration: InputDecoration(
-                          labelText: 'Status',
-                          prefixIcon: const Icon(
-                            Icons.flag_outlined,
-                            color: blue,
-                          ),
-                          filled: true,
-                          fillColor: background,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'Baru',
-                            child: Text('Baru'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Diproses',
-                            child: Text('Diproses'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Selesai',
-                            child: Text('Selesai'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setDialogState(() {
-                              status = value;
-                            });
-                          }
-                        },
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // FILE
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: background,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFFE0E6ED),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Lampiran Surat',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: textDark,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () async {
-                                    final result = await _pickFile();
-
-                                    if (result != null) {
-                                      setDialogState(() {
-                                        fileName = result;
-                                      });
-                                    }
-                                  },
-                                  icon: const Icon(Icons.upload_file),
-                                  label: const Text('Pilih File'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: blue,
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    fileName.isEmpty
-                                        ? 'Belum ada file'
-                                        : fileName,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: fileName.isEmpty
-                                          ? textGrey
-                                          : textDark,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              'Format: PDF, JPG, JPEG, PNG, DOC, DOCX',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: textGrey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              actionsPadding: const EdgeInsets.fromLTRB(
-                24,
-                0,
-                24,
-                20,
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                  },
-                  child: const Text(
-                    'Batal',
-                    style: TextStyle(
-                      color: textGrey,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (nomorController.text.trim().isEmpty ||
-                        tanggalController.text.trim().isEmpty ||
-                        asalController.text.trim().isEmpty ||
-                        perihalController.text.trim().isEmpty ||
-                        ditujukanController.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Mohon lengkapi semua data surat.',
-                          ),
-                          backgroundColor: red,
-                        ),
-                      );
-                      return;
-                    }
-
-                    final data = {
-                      'nomor': nomorController.text.trim(),
-                      'tanggal': tanggalController.text.trim(),
-                      'asal': asalController.text.trim(),
-                      'perihal': perihalController.text.trim(),
-                      'ditujukan': ditujukanController.text.trim(),
-                      'status': status,
-                      'file': fileName,
-                    };
-
-                    setState(() {
-                      if (isEdit && index != null) {
-                        _suratList[index] = data;
-                      } else {
-                        _suratList.add(data);
-                      }
-                    });
-
-                    Navigator.pop(dialogContext);
-
-                    ScaffoldMessenger.of(this.context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          isEdit
-                              ? 'Data surat berhasil diperbarui.'
-                              : 'Surat masuk berhasil ditambahkan.',
-                        ),
-                        backgroundColor: green,
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: navy,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    isEdit ? 'Simpan Perubahan' : 'Simpan',
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // =========================================================
-  // TEXT FIELD
-  // =========================================================
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    int maxLines = 1,
-  }) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      style: const TextStyle(
-        color: textDark,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: Icon(
-          icon,
-          color: blue,
-        ),
-        filled: true,
-        fillColor: background,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: blue,
-            width: 1.5,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // DETAIL SURAT
-  // =========================================================
-
-  void _showDetailDialog(Map<String, dynamic> surat) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: blue.withOpacity(0.10),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.mail_outline,
-                  color: blue,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Detail Surat Masuk',
-                  style: TextStyle(
-                    color: navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: SizedBox(
-            width: 550,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _detailItem(
-                    'Nomor Surat',
-                    surat['nomor'].toString(),
-                    Icons.numbers,
-                  ),
-                  _detailItem(
-                    'Tanggal',
-                    surat['tanggal'].toString(),
-                    Icons.calendar_today_outlined,
-                  ),
-                  _detailItem(
-                    'Asal Surat',
-                    surat['asal'].toString(),
-                    Icons.business_outlined,
-                  ),
-                  _detailItem(
-                    'Perihal',
-                    surat['perihal'].toString(),
-                    Icons.subject,
-                  ),
-                  _detailItem(
-                    'Ditujukan Kepada',
-                    surat['ditujukan'].toString(),
-                    Icons.person_outline,
-                  ),
-                  _detailItem(
-                    'Status',
-                    surat['status'].toString(),
-                    Icons.flag_outlined,
-                  ),
-                  _detailItem(
-                    'Lampiran',
-                    surat['file'].toString().isEmpty
-                        ? 'Tidak ada lampiran'
-                        : surat['file'].toString(),
-                    Icons.attach_file,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: const Text(
-                'Tutup',
-                style: TextStyle(
-                  color: navy,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // =========================================================
-  // DETAIL ITEM
-  // =========================================================
-
-  Widget _detailItem(
-    String title,
-    String value,
-    IconData icon,
-  ) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            size: 21,
-            color: blue,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: textGrey,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: textDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // =========================================================
-  // HAPUS
-  // =========================================================
-
-  void _deleteSurat(int index) {
-    final surat = _filteredSurat[index];
-
-    final realIndex = _suratList.indexOf(surat);
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-          title: const Text(
-            'Hapus Surat?',
-            style: TextStyle(
-              color: navy,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text(
-            'Data surat "${surat['nomor']}" akan dihapus. Apakah kamu yakin?',
-            style: const TextStyle(
-              color: textDark,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: const Text(
-                'Batal',
-                style: TextStyle(
-                  color: textGrey,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _suratList.removeAt(realIndex);
-                });
-
-                Navigator.pop(dialogContext);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Data surat berhasil dihapus.',
-                    ),
-                    backgroundColor: green,
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: red,
-                foregroundColor: Colors.white,
-                elevation: 0,
-              ),
-              child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // =========================================================
-  // STATUS BADGE
-  // =========================================================
-
-  Widget _statusBadge(String status) {
-    Color color;
-
-    if (status == 'Baru') {
-      color = blue;
-    } else if (status == 'Diproses') {
-      color = orange;
-    } else {
-      color = green;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 6,
-      ),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // SEARCH BAR
-  // =========================================================
-
-  Widget _buildSearchBar() {
-    return TextField(
-      controller: _searchController,
-      decoration: InputDecoration(
-        hintText: 'Cari nomor, asal, atau perihal surat...',
-        hintStyle: const TextStyle(
-          color: textGrey,
-          fontSize: 14,
-        ),
-        prefixIcon: const Icon(
-          Icons.search,
-          color: blue,
-        ),
-        suffixIcon: _searchController.text.isNotEmpty
-            ? IconButton(
-                onPressed: () {
-                  _searchController.clear();
-                },
-                icon: const Icon(
-                  Icons.clear,
-                  color: textGrey,
-                ),
-              )
-            : null,
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: blue,
-            width: 1.2,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // MOBILE CARD
-  // =========================================================
-
-  Widget _buildMobileCard(
-    Map<String, dynamic> surat,
-    int index,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: blue.withOpacity(0.10),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.mail_outline,
-                  color: blue,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      surat['nomor'].toString(),
-                      style: const TextStyle(
-                        color: navy,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      surat['tanggal'].toString(),
-                      style: const TextStyle(
-                        color: textGrey,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              _statusBadge(
-                surat['status'].toString(),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          _mobileInfo(
-            'Asal Surat',
-            surat['asal'].toString(),
-          ),
-
-          const SizedBox(height: 9),
-
-          _mobileInfo(
-            'Perihal',
-            surat['perihal'].toString(),
-          ),
-
-          const SizedBox(height: 9),
-
-          _mobileInfo(
-            'Ditujukan',
-            surat['ditujukan'].toString(),
-          ),
-
-          if (surat['file'].toString().isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Icon(
-                  Icons.attach_file,
-                  size: 17,
-                  color: blue,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    surat['file'].toString(),
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: blue,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          const SizedBox(height: 14),
-
-          const Divider(
-            height: 1,
-            color: Color(0xFFE8EDF2),
-          ),
-
-          const SizedBox(height: 10),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                tooltip: 'Detail',
-                onPressed: () {
-                  _showDetailDialog(surat);
-                },
-                icon: const Icon(
-                  Icons.visibility_outlined,
-                  color: blue,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Edit',
-                onPressed: () {
-                  final realIndex = _suratList.indexOf(surat);
-                  _showEditDialog(
-                    surat,
-                    realIndex,
-                  );
-                },
-                icon: const Icon(
-                  Icons.edit_outlined,
-                  color: orange,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Hapus',
-                onPressed: () {
-                  _deleteSurat(index);
-                },
-                icon: const Icon(
-                  Icons.delete_outline,
-                  color: red,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _mobileInfo(
-    String title,
-    String value,
-  ) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 95,
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: textGrey,
-              fontSize: 12,
-            ),
-          ),
-        ),
-        const Text(
-          ':',
-          style: TextStyle(
-            color: textGrey,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-              color: textDark,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // =========================================================
-  // DESKTOP TABLE
-  // =========================================================
-
-  Widget _buildDesktopTable() {
-    final data = _filteredSurat;
-
-    if (data.isEmpty) {
-      return _buildEmptyState();
-    }
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowColor: WidgetStateProperty.all(
-              const Color(0xFFF7F9FC),
-            ),
-            columnSpacing: 30,
-            horizontalMargin: 20,
-            dataRowMinHeight: 68,
-            dataRowMaxHeight: 80,
-            columns: const [
-              DataColumn(
-                label: Text(
-                  'No',
-                  style: TextStyle(
-                    color: navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Nomor Surat',
-                  style: TextStyle(
-                    color: navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Tanggal',
-                  style: TextStyle(
-                    color: navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Asal Surat',
-                  style: TextStyle(
-                    color: navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Perihal',
-                  style: TextStyle(
-                    color: navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Ditujukan',
-                  style: TextStyle(
-                    color: navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Status',
-                  style: TextStyle(
-                    color: navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Aksi',
-                  style: TextStyle(
-                    color: navy,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-            rows: List.generate(
-              data.length,
-              (index) {
-                final surat = data[index];
-
-                return DataRow(
-                  cells: [
-                    DataCell(
-                      Text(
-                        '${index + 1}',
-                        style: const TextStyle(
-                          color: textDark,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        surat['nomor'].toString(),
-                        style: const TextStyle(
-                          color: navy,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        surat['tanggal'].toString(),
-                        style: const TextStyle(
-                          color: textDark,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        surat['asal'].toString(),
-                        style: const TextStyle(
-                          color: textDark,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      SizedBox(
-                        width: 220,
-                        child: Text(
-                          surat['perihal'].toString(),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: textDark,
-                          ),
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        surat['ditujukan'].toString(),
-                        style: const TextStyle(
-                          color: textDark,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      _statusBadge(
-                        surat['status'].toString(),
-                      ),
-                    ),
-                    DataCell(
-                      Row(
-                        children: [
-                          IconButton(
-                            tooltip: 'Detail',
-                            onPressed: () {
-                              _showDetailDialog(surat);
-                            },
-                            icon: const Icon(
-                              Icons.visibility_outlined,
-                              color: blue,
-                              size: 20,
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: 'Edit',
-                            onPressed: () {
-                              final realIndex =
-                                  _suratList.indexOf(surat);
-
-                              _showEditDialog(
-                                surat,
-                                realIndex,
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.edit_outlined,
-                              color: orange,
-                              size: 20,
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: 'Hapus',
-                            onPressed: () {
-                              _deleteSurat(index);
-                            },
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: red,
-                              size: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // EMPTY STATE
-  // =========================================================
-
-  Widget _buildEmptyState() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        vertical: 60,
-        horizontal: 20,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: blue.withOpacity(0.08),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.mail_outline,
-              size: 40,
-              color: blue,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Data surat tidak ditemukan',
-            style: TextStyle(
-              color: navy,
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Coba gunakan kata kunci pencarian yang berbeda.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: textGrey,
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // =========================================================
-  // HEADER
-  // =========================================================
-
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Surat Masuk',
-                style: TextStyle(
-                  color: navy,
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                'Kelola data surat masuk sekolah',
-                style: TextStyle(
-                  color: textGrey,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-        ElevatedButton.icon(
-          onPressed: _showAddDialog,
-          icon: const Icon(
-            Icons.add,
-            size: 20,
-          ),
-          label: const Text(
-            'Tambah Surat',
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: navy,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 14,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // =========================================================
-  // SIDEBAR DESKTOP
-  // =========================================================
-
-  Widget _sidebar(BuildContext context) {
-    return Container(
-      width: 260,
-      color: Colors.white,
-      child: Column(
-        children: [
-          const SizedBox(height: 25),
-
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: navy,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.school,
-              color: Colors.white,
-              size: 29,
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          const Text(
-            'SIA-TU SEKOLAH',
-            style: TextStyle(
-              color: navy,
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              letterSpacing: .7,
-            ),
-          ),
-
-          const SizedBox(height: 35),
-
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Column(
-                children: [
-                  _menuItem(
-                    context,
-                    Icons.dashboard_outlined,
-                    'Dashboard',
-                    false,
-                    () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const DashboardPage(),
-                        ),
-                      );
-                    },
-                  ),
-                  _menuItem(
-                    context,
-                    Icons.people_outline,
-                    'Data Siswa',
-                    false,
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const SiswaPage(),
-                        ),
-                      );
-                    },
-                  ),
-                  _menuItem(
-                    context,
-                    Icons.badge_outlined,
-                    'Data Guru',
-                    false,
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const GuruPage(),
-                        ),
-                      );
-                    },
-                  ),
-                  _menuItem(
-                    context,
-                    Icons.mail_outline,
-                    'Surat Masuk',
-                    true,
-                    () {},
-                  ),
-                  _menuItem(
-                    context,
-                    Icons.send_outlined,
-                    'Surat Keluar',
-                    false,
-                    () {
-                      _comingSoon(context, 'Surat Keluar');
-                    },
-                  ),
-                  _menuItem(
-                    context,
-                    Icons.bar_chart,
-                    'Laporan',
-                    false,
-                    () {
-                      _comingSoon(context, 'Laporan');
-                    },
-                  ),
-
-                  const Spacer(),
-
-                  _logoutMenuItem(context),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // =========================================================
-  // MENU ITEM
-  // =========================================================
-
-  Widget _menuItem(
-    BuildContext context,
-    IconData icon,
-    String title,
-    bool active,
-    VoidCallback onTap,
-  ) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          width: double.infinity,
-          height: 54,
-          margin: const EdgeInsets.only(bottom: 10),
-          decoration: BoxDecoration(
-            color: active ? navy : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              const SizedBox(width: 23),
-              Icon(
-                icon,
-                size: 25,
-                color: active
-                    ? Colors.white
-                    : const Color(0xFF50627A),
-              ),
-              const SizedBox(width: 20),
-              Text(
-                title,
-                style: TextStyle(
-                  color: active ? Colors.white : navy,
-                  fontSize: 18,
-                  fontWeight:
-                      active ? FontWeight.bold : FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // COMING SOON
-  // =========================================================
-
-  void _comingSoon(BuildContext context, String title) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$title belum dibuat.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  // =========================================================
-  // LOGOUT
-  // =========================================================
-
-  Widget _logoutMenuItem(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const LoginPage(),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          width: double.infinity,
-          height: 55,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: const Color(0xFFFFCACA),
-            ),
-          ),
-          child: const Row(
-            children: [
-              SizedBox(width: 22),
-              Icon(
-                Icons.logout,
-                color: Color(0xFFE52323),
-                size: 25,
-              ),
-              SizedBox(width: 20),
-              Text(
-                'Logout',
-                style: TextStyle(
-                  color: Color(0xFFE52323),
-                  fontSize: 17,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // HEADER DESKTOP
-  // =========================================================
-
-  Widget _desktopHeader() {
-    return Container(
-      height: 112,
-      color: navy,
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Row(
-        children: [
-          const Expanded(
-            child: Text(
-              'Surat Masuk',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 10,
-            ),
-            decoration: BoxDecoration(
-              color: const Color(0xFF205B8B),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: const Color(0xFF286D9F),
-              ),
-            ),
-            child: const Row(
-              children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: Color(0xFF3C87BE),
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 27,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Admin TU',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.circle,
-                          color: Color(0xFF38D39F),
-                          size: 8,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          'Online',
-                          style: TextStyle(
-                            color: Color(0xFF38D39F),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // =========================================================
-  // MOBILE DRAWER
-  // =========================================================
-
-  Widget _mobileDrawer(BuildContext context) {
-    return Drawer(
-      child: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 25),
-
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: navy,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(
-                Icons.school,
-                color: Colors.white,
-                size: 29,
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            const Text(
-              'SIA-TU SEKOLAH',
-              style: TextStyle(
-                color: navy,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                letterSpacing: .7,
-              ),
-            ),
-
-            const SizedBox(height: 35),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Column(
-                  children: [
-                    _menuItem(
-                      context,
-                      Icons.dashboard_outlined,
-                      'Dashboard',
-                      false,
-                      () {
-                        Navigator.pop(context);
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const DashboardPage(),
-                          ),
-                        );
-                      },
-                    ),
-                    _menuItem(
-                      context,
-                      Icons.people_outline,
-                      'Data Siswa',
-                      false,
-                      () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SiswaPage(),
-                          ),
-                        );
-                      },
-                    ),
-                    _menuItem(
-                      context,
-                      Icons.badge_outlined,
-                      'Data Guru',
-                      false,
-                      () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const GuruPage(),
-                          ),
-                        );
-                      },
-                    ),
-                    _menuItem(
-                      context,
-                      Icons.mail_outline,
-                      'Surat Masuk',
-                      true,
-                      () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    _menuItem(
-                      context,
-                      Icons.send_outlined,
-                      'Surat Keluar',
-                      false,
-                      () {
-                        Navigator.pop(context);
-                        _comingSoon(context, 'Surat Keluar');
-                      },
-                    ),
-                    _menuItem(
-                      context,
-                      Icons.bar_chart,
-                      'Laporan',
-                      false,
-                      () {
-                        Navigator.pop(context);
-                        _comingSoon(context, 'Laporan');
-                      },
-                    ),
-
-                    const Spacer(),
-
-                    _logoutMenuItem(context),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // MAIN CONTENT
-  // =========================================================
-
-  Widget _mainContent() {
-    return Column(
-      children: [
-        _header(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 90),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _pageTitle(),
-                const SizedBox(height: 22),
-                _buildSearchBar(),
-                const SizedBox(height: 20),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (_filteredSurat.isEmpty) {
-                      return _buildEmptyState();
-                    }
-
-                    if (constraints.maxWidth < 700) {
-                      return Column(
-                        children: List.generate(
-                          _filteredSurat.length,
-                          (index) => _buildMobileCard(
-                            _filteredSurat[index],
-                            index,
-                          ),
-                        ),
-                      );
-                    }
-
-                    return _buildDesktopTable();
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // =========================================================
-  // HEADER
-  // =========================================================
-
-  Widget _header() {
-    return Container(
-      height: 76,
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 22),
-      decoration: const BoxDecoration(
-        color: navy,
-      ),
-      child: Row(
-        children: [
-          Builder(
-            builder: (context) {
-              return IconButton(
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-                icon: const Icon(
-                  Icons.menu,
-                  color: Colors.white,
-                ),
-              );
-            },
-          ),
-
-          const SizedBox(width: 10),
-
-          const Expanded(
-            child: Text(
-              'Surat Masuk',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-
-          Container(
-            width: 42,
-            height: 42,
-            decoration: const BoxDecoration(
-              color: blue,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.person,
-              color: Colors.white,
-              size: 23,
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Admin TU',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 2),
-              Row(
-                children: [
-                  Icon(
-                    Icons.circle,
-                    color: green,
-                    size: 7,
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    'Online',
-                    style: TextStyle(
-                      color: green,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          const SizedBox(width: 15),
-        ],
-      ),
-    );
-  }
-
-  // =========================================================
-  // PAGE TITLE
-  // =========================================================
-
-  Widget _pageTitle() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final bool mobile = constraints.maxWidth < 600;
-
-        if (mobile) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Surat Masuk',
-                style: TextStyle(
-                  color: navy,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 5),
-              const Text(
-                'Kelola data surat masuk sekolah',
-                style: TextStyle(
-                  color: textGrey,
-                  fontSize: 13,
-                ),
-              ),
-              const SizedBox(height: 15),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _showAddDialog,
-                  icon: const Icon(Icons.add, size: 20),
-                  label: const Text('Tambah Surat'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: navy,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 13,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        }
-
-        return Row(
-          children: [
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Surat Masuk',
-                    style: TextStyle(
-                      color: navy,
-                      fontSize: 27,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    'Kelola data surat masuk sekolah',
-                    style: TextStyle(
-                      color: textGrey,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ElevatedButton.icon(
-              onPressed: _showAddDialog,
-              icon: const Icon(Icons.add, size: 20),
-              label: const Text('Tambah Surat'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: navy,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 14,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // =========================================================
-  // MAIN BUILD
-  // =========================================================
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -2123,6 +142,2547 @@ class _SuratMasukPageState extends State<SuratMasukPage> {
 
             return _mainContent();
           },
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // SIDEBAR
+  // SAMA DENGAN DATA SISWA
+  // ============================================================
+
+  Widget _sidebar(BuildContext context) {
+    return Container(
+      width: 260,
+      color: Colors.white,
+      child: Column(
+        children: [
+          const SizedBox(height: 22),
+
+          // ======================================================
+          // LOGO
+          // ======================================================
+
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: navy,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.school,
+              size: 29,
+              color: Colors.white,
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          const Text(
+            'SIA-TU SEKOLAH',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: navy,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 22),
+
+          // ======================================================
+          // MENU
+          // ======================================================
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+              ),
+              child: Column(
+                children: [
+                  // DASHBOARD
+                  _menuItem(
+                    context,
+                    Icons.dashboard_outlined,
+                    'Dashboard',
+                    false,
+                    () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const DashboardPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // DATA SISWA
+                  _menuItem(
+                    context,
+                    Icons.people_outline,
+                    'Data Siswa',
+                    false,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const SiswaPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // DATA GURU
+                  _menuItem(
+                    context,
+                    Icons.badge_outlined,
+                    'Data Guru',
+                    false,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const GuruPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // SURAT MASUK
+                  _menuItem(
+                    context,
+                    Icons.mail_outline,
+                    'Surat Masuk',
+                    true,
+                    () {},
+                  ),
+
+                  // SURAT KELUAR
+                  _menuItem(
+                    context,
+                    Icons.send_outlined,
+                    'Surat Keluar',
+                    false,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const SuratKeluarPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // LAPORAN
+                  _menuItem(
+                    context,
+                    Icons.bar_chart,
+                    'Laporan',
+                    false,
+                    () {
+                      _comingSoon(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ======================================================
+          // KELUAR
+          // ======================================================
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              12,
+              0,
+              12,
+              20,
+            ),
+            child: _logoutMenuItem(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // MENU ITEM
+  // UKURAN SAMA DENGAN DATA SISWA
+  // ============================================================
+
+  Widget _menuItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    bool active,
+    VoidCallback onTap,
+  ) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          margin: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+            color: active
+                ? navy
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              const SizedBox(width: 18),
+
+              Icon(
+                icon,
+                size: 23,
+                color: active
+                    ? Colors.white
+                    : const Color(0xFF50627A),
+              ),
+
+              const SizedBox(width: 15),
+
+              Text(
+                title,
+                style: TextStyle(
+                  color: active
+                      ? Colors.white
+                      : navy,
+                  fontSize: 15,
+                  fontWeight: active
+                      ? FontWeight.bold
+                      : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // KELUAR
+  // ============================================================
+
+  Widget _logoutMenuItem(BuildContext context) {
+    const Color logoutRed = Color(0xFFE52323);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const LoginPage(),
+            ),
+            (route) => false,
+          );
+        },
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: const Color(0xFFFFCACA),
+            ),
+          ),
+          child: const Row(
+            children: [
+              SizedBox(width: 18),
+
+              Icon(
+                Icons.logout,
+                size: 23,
+                color: logoutRed,
+              ),
+
+              SizedBox(width: 15),
+
+              Text(
+                'Keluar',
+                style: TextStyle(
+                  color: logoutRed,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // MOBILE DRAWER
+  // ============================================================
+
+  Widget _mobileDrawer(BuildContext context) {
+    return Drawer(
+      width: 260,
+      backgroundColor: Colors.white,
+      child: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 22),
+
+            // LOGO
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: navy,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.school,
+                size: 29,
+                color: Colors.white,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            const Text(
+              'SIA-TU SEKOLAH',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: navy,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                ),
+                child: Column(
+                  children: [
+                    _menuItem(
+                      context,
+                      Icons.dashboard_outlined,
+                      'Dashboard',
+                      false,
+                      () {
+                        Navigator.pop(context);
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const DashboardPage(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    _menuItem(
+                      context,
+                      Icons.people_outline,
+                      'Data Siswa',
+                      false,
+                      () {
+                        Navigator.pop(context);
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const SiswaPage(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    _menuItem(
+                      context,
+                      Icons.badge_outlined,
+                      'Data Guru',
+                      false,
+                      () {
+                        Navigator.pop(context);
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const GuruPage(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    _menuItem(
+                      context,
+                      Icons.mail_outline,
+                      'Surat Masuk',
+                      true,
+                      () {
+                        Navigator.pop(context);
+                      },
+                    ),
+
+                    _menuItem(
+                      context,
+                      Icons.send_outlined,
+                      'Surat Keluar',
+                      false,
+                      () {
+                        Navigator.pop(context);
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const SuratKeluarPage(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    _menuItem(
+                      context,
+                      Icons.bar_chart,
+                      'Laporan',
+                      false,
+                      () {
+                        Navigator.pop(context);
+                        _comingSoon(context);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                12,
+                0,
+                12,
+                20,
+              ),
+              child: _logoutMenuItem(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // MAIN CONTENT
+  // ============================================================
+
+  Widget _mainContent() {
+    return Column(
+      children: [
+        _header(),
+
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              24,
+              20,
+              24,
+              90,
+            ),
+            child: _content(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // HEADER
+  // ============================================================
+
+  Widget _header() {
+    return Container(
+      height: 76,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 22,
+      ),
+      color: navy,
+      child: Row(
+        children: [
+          Builder(
+            builder: (context) {
+              return IconButton(
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                icon: const Icon(
+                  Icons.menu,
+                  color: Colors.white,
+                  size: 25,
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(width: 8),
+
+          const Expanded(
+            child: Text(
+              'Surat Masuk',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+          Container(
+            width: 42,
+            height: 42,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.person,
+              color: navy,
+              size: 23,
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          const Column(
+            mainAxisAlignment:
+                MainAxisAlignment.center,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Admin TU',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 2),
+              Row(
+                children: [
+                  Icon(
+                    Icons.circle,
+                    size: 7,
+                    color: green,
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    'Online',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // CONTENT
+  // ============================================================
+
+  Widget _content() {
+    final filtered = _filteredSurat();
+
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        _pageTitle(),
+
+        const SizedBox(height: 18),
+
+        _statistics(),
+
+        const SizedBox(height: 20),
+
+        _searchAndAdd(),
+
+        const SizedBox(height: 18),
+
+        LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth < 700) {
+              return _mobileList(filtered);
+            }
+
+            return _desktopTable(filtered);
+          },
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // PAGE TITLE
+  // ============================================================
+
+  Widget _pageTitle() {
+    return Row(
+      crossAxisAlignment:
+          CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 45,
+          height: 45,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEAF3FF),
+            borderRadius:
+                BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.mail_outline,
+            color: blue,
+            size: 24,
+          ),
+        ),
+
+        const SizedBox(width: 12),
+
+        const Expanded(
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Data Surat Masuk',
+                style: TextStyle(
+                  color: textDark,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 3),
+              Text(
+                'Kelola dan arsipkan surat yang diterima sekolah.',
+                style: TextStyle(
+                  color: textGrey,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // STATISTICS
+  // ============================================================
+
+  Widget _statistics() {
+    final total = _suratMasuk.length;
+
+    final unread = _suratMasuk
+        .where(
+          (item) =>
+              item['status'] == 'Belum Dibaca',
+        )
+        .length;
+
+    final read = _suratMasuk
+        .where(
+          (item) =>
+              item['status'] == 'Sudah Dibaca',
+        )
+        .length;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 650) {
+          return GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.7,
+            shrinkWrap: true,
+            physics:
+                const NeverScrollableScrollPhysics(),
+            children: [
+              _statCard(
+                'Total Surat',
+                total.toString(),
+                Icons.mail_outline,
+                blue,
+              ),
+              _statCard(
+                'Belum Dibaca',
+                unread.toString(),
+                Icons.mark_email_unread_outlined,
+                orange,
+              ),
+              _statCard(
+                'Sudah Dibaca',
+                read.toString(),
+                Icons.mark_email_read_outlined,
+                green,
+              ),
+              _statCard(
+                'Arsip',
+                total.toString(),
+                Icons.archive_outlined,
+                navy,
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: _statCard(
+                'Total Surat',
+                total.toString(),
+                Icons.mail_outline,
+                blue,
+              ),
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: _statCard(
+                'Belum Dibaca',
+                unread.toString(),
+                Icons.mark_email_unread_outlined,
+                orange,
+              ),
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: _statCard(
+                'Sudah Dibaca',
+                read.toString(),
+                Icons.mark_email_read_outlined,
+                green,
+              ),
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: _statCard(
+                'Arsip',
+                total.toString(),
+                Icons.archive_outlined,
+                navy,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _statCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+            BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFE5EAF0),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.10),
+              borderRadius:
+                  BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 22,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 21,
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow:
+                      TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: textGrey,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // SEARCH + ADD
+  // ============================================================
+
+  Widget _searchAndAdd() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+            BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFE5EAF0),
+        ),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 600) {
+            return Column(
+              children: [
+                _searchBox(),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: _addButton(),
+                ),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(
+                child: _searchBox(),
+              ),
+              const SizedBox(width: 12),
+              _addButton(),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _searchBox() {
+    return TextField(
+      controller: _searchController,
+      onChanged: (value) {
+        setState(() {
+          _searchText =
+              value.toLowerCase();
+        });
+      },
+      decoration: InputDecoration(
+        hintText:
+            'Cari nomor, asal surat, atau perihal...',
+        hintStyle: const TextStyle(
+          color: textGrey,
+          fontSize: 13,
+        ),
+        prefixIcon: const Icon(
+          Icons.search,
+          color: textGrey,
+          size: 21,
+        ),
+        suffixIcon:
+            _searchText.isNotEmpty
+                ? IconButton(
+                    onPressed: () {
+                      _searchController
+                          .clear();
+
+                      setState(() {
+                        _searchText = '';
+                      });
+                    },
+                    icon: const Icon(
+                      Icons.close,
+                      size: 19,
+                    ),
+                  )
+                : null,
+        filled: true,
+        fillColor:
+            const Color(0xFFF8FAFC),
+        border: OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: Color(0xFFE2E8F0),
+          ),
+        ),
+        enabledBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: Color(0xFFE2E8F0),
+          ),
+        ),
+        focusedBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: blue,
+            width: 1.5,
+          ),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 13,
+        ),
+      ),
+    );
+  }
+
+  Widget _addButton() {
+    return ElevatedButton.icon(
+      onPressed: () {
+        _openFormDialog();
+      },
+      icon: const Icon(
+        Icons.add,
+        size: 20,
+      ),
+      label: const Text(
+        'Tambah Surat',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: navy,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding:
+            const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 14,
+        ),
+        shape:
+            RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // FILTER
+  // ============================================================
+
+  List<Map<String, String>>
+      _filteredSurat() {
+    if (_searchText.isEmpty) {
+      return List<Map<String, String>>.from(
+        _suratMasuk,
+      );
+    }
+
+    return _suratMasuk.where((item) {
+      final nomor =
+          item['nomor']!.toLowerCase();
+      final asal =
+          item['asal']!.toLowerCase();
+      final perihal =
+          item['perihal']!.toLowerCase();
+
+      return nomor.contains(_searchText) ||
+          asal.contains(_searchText) ||
+          perihal.contains(_searchText);
+    }).toList();
+  }
+
+  // ============================================================
+  // DESKTOP TABLE
+  // ============================================================
+
+  Widget _desktopTable(
+    List<Map<String, String>> data,
+  ) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+            BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFE5EAF0),
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius:
+            BorderRadius.circular(12),
+        child: data.isEmpty
+            ? _emptyState()
+            : SingleChildScrollView(
+                scrollDirection:
+                    Axis.horizontal,
+                child: DataTable(
+                  columnSpacing: 25,
+                  headingRowHeight: 48,
+                  dataRowMinHeight: 65,
+                  dataRowMaxHeight: 75,
+                  headingRowColor:
+                      MaterialStateProperty.all(
+                    const Color(0xFFF8FAFC),
+                  ),
+                  columns: const [
+                    DataColumn(
+                      label: Text(
+                        'No',
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                          color: textDark,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Nomor Surat',
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                          color: textDark,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Tanggal',
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                          color: textDark,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Asal',
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                          color: textDark,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Perihal',
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                          color: textDark,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Ditujukan',
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                          color: textDark,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Status',
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                          color: textDark,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Aksi',
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight.bold,
+                          color: textDark,
+                        ),
+                      ),
+                    ),
+                  ],
+                  rows: List.generate(
+                    data.length,
+                    (index) {
+                      final item =
+                          data[index];
+
+                      final originalIndex =
+                          _suratMasuk
+                              .indexOf(item);
+
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            Text(
+                              '${index + 1}',
+                              style:
+                                  const TextStyle(
+                                color:
+                                    textGrey,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              item['nomor']!,
+                              style:
+                                  const TextStyle(
+                                color: navy,
+                                fontSize: 13,
+                                fontWeight:
+                                    FontWeight
+                                        .bold,
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              _formatDate(
+                                item[
+                                    'tanggal']!,
+                              ),
+                              style:
+                                  const TextStyle(
+                                color:
+                                    textDark,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            SizedBox(
+                              width: 130,
+                              child: Text(
+                                item['asal']!,
+                                maxLines: 2,
+                                overflow:
+                                    TextOverflow
+                                        .ellipsis,
+                                style:
+                                    const TextStyle(
+                                  color:
+                                      textDark,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            SizedBox(
+                              width: 180,
+                              child: Text(
+                                item[
+                                    'perihal']!,
+                                maxLines: 2,
+                                overflow:
+                                    TextOverflow
+                                        .ellipsis,
+                                style:
+                                    const TextStyle(
+                                  color:
+                                      textDark,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              item[
+                                  'ditujukan']!,
+                              style:
+                                  const TextStyle(
+                                color:
+                                    textDark,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            _statusBox(
+                              item[
+                                  'status']!,
+                            ),
+                          ),
+                          DataCell(
+                            _actionButtons(
+                              originalIndex,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // MOBILE LIST
+  // ============================================================
+
+  Widget _mobileList(
+    List<Map<String, String>> data,
+  ) {
+    if (data.isEmpty) {
+      return _emptyState();
+    }
+
+    return Column(
+      children: List.generate(
+        data.length,
+        (index) {
+          final item = data[index];
+
+          final originalIndex =
+              _suratMasuk.indexOf(item);
+
+          return _mobileCard(
+            item,
+            originalIndex,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _mobileCard(
+    Map<String, String> item,
+    int originalIndex,
+  ) {
+    return Container(
+      width: double.infinity,
+      margin:
+          const EdgeInsets.only(bottom: 12),
+      padding:
+          const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+            BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFE5EAF0),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color:
+                      const Color(0xFFEAF3FF),
+                  borderRadius:
+                      BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.mail_outline,
+                  color: blue,
+                  size: 22,
+                ),
+              ),
+
+              const SizedBox(width: 11),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment
+                          .start,
+                  children: [
+                    Text(
+                      item['nomor']!,
+                      style:
+                          const TextStyle(
+                        color: navy,
+                        fontSize: 14,
+                        fontWeight:
+                            FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      _formatDate(
+                        item['tanggal']!,
+                      ),
+                      style:
+                          const TextStyle(
+                        color: textGrey,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              _statusBox(
+                item['status']!,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 15),
+
+          _mobileInfo(
+            Icons.business_outlined,
+            'Asal',
+            item['asal']!,
+          ),
+
+          const SizedBox(height: 9),
+
+          _mobileInfo(
+            Icons.person_outline,
+            'Ditujukan',
+            item['ditujukan']!,
+          ),
+
+          const SizedBox(height: 9),
+
+          _mobileInfo(
+            Icons.subject,
+            'Perihal',
+            item['perihal']!,
+          ),
+
+          const SizedBox(height: 13),
+
+          if (item['file']!.isNotEmpty)
+            Row(
+              children: [
+                const Icon(
+                  Icons.attach_file,
+                  size: 17,
+                  color: textGrey,
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    item['file']!,
+                    style:
+                        const TextStyle(
+                      color: blue,
+                      fontSize: 12,
+                    ),
+                    overflow:
+                        TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+
+          const SizedBox(height: 14),
+
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    _showDetail(item);
+                  },
+                  icon: const Icon(
+                    Icons.visibility_outlined,
+                    size: 17,
+                  ),
+                  label: const Text(
+                    'Detail',
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                  style:
+                      OutlinedButton.styleFrom(
+                    foregroundColor: navy,
+                    side:
+                        const BorderSide(
+                      color:
+                          Color(0xFFD6DEE8),
+                    ),
+                    padding:
+                        const EdgeInsets
+                            .symmetric(
+                      vertical: 11,
+                    ),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius
+                              .circular(8),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    _openFormDialog(
+                      index: originalIndex,
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    size: 17,
+                  ),
+                  label: const Text(
+                    'Edit',
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                  style:
+                      OutlinedButton.styleFrom(
+                    foregroundColor: blue,
+                    side:
+                        const BorderSide(
+                      color:
+                          Color(0xFFBDD7EC),
+                    ),
+                    padding:
+                        const EdgeInsets
+                            .symmetric(
+                      vertical: 11,
+                    ),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius
+                              .circular(8),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              IconButton(
+                onPressed: () {
+                  _deleteSurat(
+                    originalIndex,
+                  );
+                },
+                style:
+                    IconButton.styleFrom(
+                  backgroundColor:
+                      const Color(
+                          0xFFFFF0F2),
+                  foregroundColor: red,
+                ),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  size: 19,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _mobileInfo(
+    IconData icon,
+    String title,
+    String value,
+  ) {
+    return Row(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          size: 17,
+          color: textGrey,
+        ),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 65,
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: textGrey,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        const Text(
+          ':',
+          style: TextStyle(
+            color: textGrey,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(width: 7),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              color: textDark,
+              fontSize: 12,
+              fontWeight:
+                  FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // STATUS
+  // ============================================================
+
+  Widget _statusBox(String status) {
+    final bool read =
+        status == 'Sudah Dibaca';
+
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: read
+            ? const Color(0xFFE9FBF4)
+            : const Color(0xFFFFF5E7),
+        borderRadius:
+            BorderRadius.circular(20),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: read
+              ? const Color(0xFF159A6B)
+              : const Color(0xFFC77A16),
+          fontSize: 10,
+          fontWeight:
+              FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // ACTION BUTTON
+  // ============================================================
+
+  Widget _actionButtons(int index) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: 'Detail',
+          onPressed: () {
+            _showDetail(
+              _suratMasuk[index],
+            );
+          },
+          icon: const Icon(
+            Icons.visibility_outlined,
+            size: 19,
+          ),
+          color: navy,
+        ),
+        IconButton(
+          tooltip: 'Edit',
+          onPressed: () {
+            _openFormDialog(
+              index: index,
+            );
+          },
+          icon: const Icon(
+            Icons.edit_outlined,
+            size: 19,
+          ),
+          color: blue,
+        ),
+        IconButton(
+          tooltip: 'Hapus',
+          onPressed: () {
+            _deleteSurat(index);
+          },
+          icon: const Icon(
+            Icons.delete_outline,
+            size: 19,
+          ),
+          color: red,
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // EMPTY
+  // ============================================================
+
+  Widget _emptyState() {
+    return Container(
+      width: double.infinity,
+      padding:
+          const EdgeInsets.symmetric(
+        vertical: 55,
+        horizontal: 20,
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 65,
+            height: 65,
+            decoration: BoxDecoration(
+              color:
+                  const Color(0xFFF1F5F9),
+              borderRadius:
+                  BorderRadius.circular(18),
+            ),
+            child: const Icon(
+              Icons.mail_outline,
+              size: 31,
+              color: textGrey,
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          const Text(
+            'Data surat tidak ditemukan',
+            style: TextStyle(
+              color: textDark,
+              fontSize: 15,
+              fontWeight:
+                  FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          const Text(
+            'Coba gunakan kata pencarian yang berbeda.',
+            style: TextStyle(
+              color: textGrey,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // FORM DIALOG
+  // ============================================================
+
+  void _openFormDialog({
+    int? index,
+  }) {
+    _editingIndex = index;
+
+    if (index != null) {
+      final item =
+          _suratMasuk[index];
+
+      _nomorController.text =
+          item['nomor'] ?? '';
+
+      _tanggalController.text =
+          item['tanggal'] ?? '';
+
+      _asalController.text =
+          item['asal'] ?? '';
+
+      _perihalController.text =
+          item['perihal'] ?? '';
+
+      _ditujukanController.text =
+          item['ditujukan'] ?? '';
+
+      _fileController.text =
+          item['file'] ?? '';
+
+      _statusController =
+          item['status'] ??
+              'Belum Dibaca';
+    } else {
+      _clearForm();
+    }
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder:
+              (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor:
+                  Colors.white,
+              shape:
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(
+                        15),
+              ),
+              title: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          const Color(
+                              0xFFEAF3FF),
+                      borderRadius:
+                          BorderRadius
+                              .circular(9),
+                    ),
+                    child: const Icon(
+                      Icons.mail_outline,
+                      color: blue,
+                      size: 21,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      index == null
+                          ? 'Tambah Surat Masuk'
+                          : 'Edit Surat Masuk',
+                      style:
+                          const TextStyle(
+                        color: textDark,
+                        fontSize: 18,
+                        fontWeight:
+                            FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 600,
+                child:
+                    SingleChildScrollView(
+                  child: _formContent(
+                    setDialogState,
+                  ),
+                ),
+              ),
+              actionsPadding:
+                  const EdgeInsets.fromLTRB(
+                24,
+                0,
+                24,
+                20,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(
+                      dialogContext,
+                    );
+                  },
+                  child: const Text(
+                    'Batal',
+                    style: TextStyle(
+                      color: textGrey,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _saveSurat(
+                      dialogContext,
+                    );
+                  },
+                  style:
+                      ElevatedButton.styleFrom(
+                    backgroundColor: navy,
+                    foregroundColor:
+                        Colors.white,
+                    elevation: 0,
+                    padding:
+                        const EdgeInsets
+                            .symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius
+                              .circular(9),
+                    ),
+                  ),
+                  child: Text(
+                    index == null
+                        ? 'Simpan'
+                        : 'Simpan Perubahan',
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // FORM
+  // ============================================================
+
+  Widget _formContent(
+    StateSetter setDialogState,
+  ) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        _fieldLabel('Nomor Surat'),
+
+        _textField(
+          controller:
+              _nomorController,
+          hint:
+              'Masukkan nomor surat',
+          icon: Icons.numbers,
+        ),
+
+        const SizedBox(height: 15),
+
+        _fieldLabel(
+          'Tanggal Surat',
+        ),
+
+        _textField(
+          controller:
+              _tanggalController,
+          hint: 'YYYY-MM-DD',
+          icon:
+              Icons.calendar_today_outlined,
+        ),
+
+        const SizedBox(height: 15),
+
+        _fieldLabel(
+          'Asal Surat',
+        ),
+
+        _textField(
+          controller:
+              _asalController,
+          hint:
+              'Masukkan asal / instansi',
+          icon:
+              Icons.business_outlined,
+        ),
+
+        const SizedBox(height: 15),
+
+        _fieldLabel('Perihal'),
+
+        _textField(
+          controller:
+              _perihalController,
+          hint:
+              'Masukkan perihal surat',
+          icon: Icons.subject,
+          maxLines: 3,
+        ),
+
+        const SizedBox(height: 15),
+
+        _fieldLabel(
+          'Ditujukan Kepada',
+        ),
+
+        _textField(
+          controller:
+              _ditujukanController,
+          hint:
+              'Contoh: Kepala Sekolah',
+          icon:
+              Icons.person_outline,
+        ),
+
+        const SizedBox(height: 15),
+
+        _fieldLabel('Status'),
+
+        DropdownButtonFormField<String>(
+          value: _statusController,
+          decoration:
+              InputDecoration(
+            prefixIcon:
+                const Icon(
+              Icons.flag_outlined,
+              size: 20,
+              color: textGrey,
+            ),
+            filled: true,
+            fillColor:
+                const Color(0xFFF8FAFC),
+            border:
+                OutlineInputBorder(
+              borderRadius:
+                  BorderRadius.circular(
+                      9),
+              borderSide:
+                  const BorderSide(
+                color:
+                    Color(0xFFE2E8F0),
+              ),
+            ),
+            enabledBorder:
+                OutlineInputBorder(
+              borderRadius:
+                  BorderRadius.circular(
+                      9),
+              borderSide:
+                  const BorderSide(
+                color:
+                    Color(0xFFE2E8F0),
+              ),
+            ),
+          ),
+          items: const [
+            DropdownMenuItem(
+              value: 'Belum Dibaca',
+              child:
+                  Text('Belum Dibaca'),
+            ),
+            DropdownMenuItem(
+              value: 'Sudah Dibaca',
+              child:
+                  Text('Sudah Dibaca'),
+            ),
+          ],
+          onChanged: (value) {
+            if (value != null) {
+              setDialogState(() {
+                _statusController =
+                    value;
+              });
+            }
+          },
+        ),
+
+        const SizedBox(height: 15),
+
+        _fieldLabel(
+          'Nama File',
+        ),
+
+        TextField(
+          controller:
+              _fileController,
+          decoration:
+              InputDecoration(
+            hintText:
+                'Contoh: surat_masuk.pdf',
+            hintStyle:
+                const TextStyle(
+              color: textGrey,
+              fontSize: 13,
+            ),
+            prefixIcon:
+                const Icon(
+              Icons.attach_file,
+              size: 20,
+              color: textGrey,
+            ),
+            filled: true,
+            fillColor:
+                const Color(0xFFF8FAFC),
+            border:
+                OutlineInputBorder(
+              borderRadius:
+                  BorderRadius.circular(
+                      9),
+              borderSide:
+                  const BorderSide(
+                color:
+                    Color(0xFFE2E8F0),
+              ),
+            ),
+            enabledBorder:
+                OutlineInputBorder(
+              borderRadius:
+                  BorderRadius.circular(
+                      9),
+              borderSide:
+                  const BorderSide(
+                color:
+                    Color(0xFFE2E8F0),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // FIELD LABEL
+  // ============================================================
+
+  Widget _fieldLabel(
+    String label,
+  ) {
+    return Padding(
+      padding:
+          const EdgeInsets.only(
+        bottom: 7,
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: textDark,
+          fontSize: 13,
+          fontWeight:
+              FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // TEXT FIELD
+  // ============================================================
+
+  Widget _textField({
+    required TextEditingController
+        controller,
+    required String hint,
+    required IconData icon,
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration:
+          InputDecoration(
+        hintText: hint,
+        hintStyle:
+            const TextStyle(
+          color: textGrey,
+          fontSize: 13,
+        ),
+        prefixIcon: maxLines == 1
+            ? Icon(
+                icon,
+                size: 20,
+                color: textGrey,
+              )
+            : null,
+        filled: true,
+        fillColor:
+            const Color(0xFFF8FAFC),
+        border:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(9),
+          borderSide:
+              const BorderSide(
+            color:
+                Color(0xFFE2E8F0),
+          ),
+        ),
+        enabledBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(9),
+          borderSide:
+              const BorderSide(
+            color:
+                Color(0xFFE2E8F0),
+          ),
+        ),
+        focusedBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(9),
+          borderSide:
+              const BorderSide(
+            color: blue,
+            width: 1.5,
+          ),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(
+          horizontal: 13,
+          vertical: 13,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // SAVE
+  // ============================================================
+
+  void _saveSurat(
+    BuildContext dialogContext,
+  ) {
+    if (_nomorController.text
+            .trim()
+            .isEmpty ||
+        _tanggalController.text
+            .trim()
+            .isEmpty ||
+        _asalController.text
+            .trim()
+            .isEmpty ||
+        _perihalController.text
+            .trim()
+            .isEmpty ||
+        _ditujukanController.text
+            .trim()
+            .isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Mohon lengkapi semua data surat.',
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    final bool isEdit =
+        _editingIndex != null;
+
+    final data = {
+      'nomor':
+          _nomorController.text.trim(),
+      'tanggal':
+          _tanggalController.text.trim(),
+      'asal':
+          _asalController.text.trim(),
+      'perihal':
+          _perihalController.text.trim(),
+      'ditujukan':
+          _ditujukanController.text
+              .trim(),
+      'status': _statusController,
+      'file':
+          _fileController.text.trim(),
+    };
+
+    setState(() {
+      if (_editingIndex == null) {
+        _suratMasuk.add(data);
+      } else {
+        _suratMasuk[
+            _editingIndex!] = data;
+      }
+    });
+
+    Navigator.pop(dialogContext);
+
+    _clearForm();
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(
+      SnackBar(
+        content: Text(
+          isEdit
+              ? 'Surat masuk berhasil diperbarui.'
+              : 'Surat masuk berhasil ditambahkan.',
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // CLEAR FORM
+  // ============================================================
+
+  void _clearForm() {
+    _nomorController.clear();
+    _tanggalController.clear();
+    _asalController.clear();
+    _perihalController.clear();
+    _ditujukanController.clear();
+    _fileController.clear();
+
+    _statusController =
+        'Belum Dibaca';
+
+    _editingIndex = null;
+  }
+
+  // ============================================================
+  // DETAIL
+  // ============================================================
+
+  void _showDetail(
+    Map<String, String> item,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor:
+              Colors.white,
+          shape:
+              RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(15),
+          ),
+          title: const Text(
+            'Detail Surat Masuk',
+            style: TextStyle(
+              color: textDark,
+              fontSize: 18,
+              fontWeight:
+                  FontWeight.bold,
+            ),
+          ),
+          content: SizedBox(
+            width: 550,
+            child:
+                SingleChildScrollView(
+              child: Column(
+                children: [
+                  _detailRow(
+                    'Nomor Surat',
+                    item['nomor']!,
+                  ),
+                  _detailRow(
+                    'Tanggal',
+                    _formatDate(
+                      item['tanggal']!,
+                    ),
+                  ),
+                  _detailRow(
+                    'Asal Surat',
+                    item['asal']!,
+                  ),
+                  _detailRow(
+                    'Perihal',
+                    item['perihal']!,
+                  ),
+                  _detailRow(
+                    'Ditujukan',
+                    item['ditujukan']!,
+                  ),
+                  _detailRow(
+                    'Status',
+                    item['status']!,
+                  ),
+                  _detailRow(
+                    'File',
+                    item['file']!.isEmpty
+                        ? '-'
+                        : item['file']!,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                );
+              },
+              style:
+                  ElevatedButton.styleFrom(
+                backgroundColor: navy,
+                foregroundColor:
+                    Colors.white,
+                elevation: 0,
+              ),
+              child:
+                  const Text('Tutup'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // DETAIL ROW
+  // ============================================================
+
+  Widget _detailRow(
+    String label,
+    String value,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding:
+          const EdgeInsets.symmetric(
+        vertical: 12,
+      ),
+      decoration:
+          const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color:
+                Color(0xFFE5EAF0),
+          ),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 125,
+            child: Text(
+              label,
+              style:
+                  const TextStyle(
+                color: textGrey,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          const Text(
+            ':',
+            style: TextStyle(
+              color: textGrey,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              value,
+              style:
+                  const TextStyle(
+                color: textDark,
+                fontSize: 13,
+                fontWeight:
+                    FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // DELETE
+  // ============================================================
+
+  void _deleteSurat(
+    int index,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(14),
+          ),
+          title: const Text(
+            'Hapus Surat?',
+            style: TextStyle(
+              color: textDark,
+              fontWeight:
+                  FontWeight.bold,
+            ),
+          ),
+          content: const Text(
+            'Data surat masuk ini akan dihapus dari daftar.',
+            style: TextStyle(
+              color: textGrey,
+              fontSize: 13,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                );
+              },
+              child: const Text(
+                'Batal',
+                style: TextStyle(
+                  color: textGrey,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _suratMasuk
+                      .removeAt(index);
+                });
+
+                Navigator.pop(
+                  context,
+                );
+
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Surat masuk berhasil dihapus.',
+                    ),
+                  ),
+                );
+              },
+              style:
+                  ElevatedButton.styleFrom(
+                backgroundColor: red,
+                foregroundColor:
+                    Colors.white,
+                elevation: 0,
+              ),
+              child:
+                  const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // FORMAT DATE
+  // ============================================================
+
+  String _formatDate(
+    String date,
+  ) {
+    final parts = date.split('-');
+
+    if (parts.length != 3) {
+      return date;
+    }
+
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+
+    final month =
+        int.tryParse(parts[1]);
+
+    if (month == null ||
+        month < 1 ||
+        month > 12) {
+      return date;
+    }
+
+    return '${parts[2]} ${months[month - 1]} ${parts[0]}';
+  }
+
+  // ============================================================
+  // COMING SOON
+  // ============================================================
+
+  void _comingSoon(
+    BuildContext context,
+  ) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Fitur laporan sedang dalam pengembangan.',
         ),
       ),
     );

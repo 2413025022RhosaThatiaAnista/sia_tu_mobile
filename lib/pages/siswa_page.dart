@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
 import 'login_page.dart';
 import 'guru_page.dart';
+import 'surat_masuk_page.dart';
+import 'surat_keluar_page.dart';
 
 class SiswaPage extends StatefulWidget {
   const SiswaPage({super.key});
@@ -329,7 +331,12 @@ class _SiswaPageState extends State<SiswaPage> {
                     'Surat Masuk',
                     false,
                     () {
-                      _comingSoon('Surat Masuk');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SuratMasukPage(),
+                        ),
+                      );
                     },
                   ),
 
@@ -338,7 +345,12 @@ class _SiswaPageState extends State<SiswaPage> {
                     'Surat Keluar',
                     false,
                     () {
-                      _comingSoon('Surat Keluar');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SuratKeluarPage(),
+                          ),
+                        );
                     },
                   ),
 
@@ -514,7 +526,12 @@ class _SiswaPageState extends State<SiswaPage> {
               'Surat Masuk',
               () {
                 Navigator.pop(context);
-                _comingSoon('Surat Masuk');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SuratMasukPage(),
+                  ),
+                );
               },
             ),
 
@@ -523,7 +540,12 @@ class _SiswaPageState extends State<SiswaPage> {
               'Surat Keluar',
               () {
                 Navigator.pop(context);
-                _comingSoon('Surat Keluar');
+                Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SuratKeluarPage(),
+                          ),
+                        );
               },
             ),
 

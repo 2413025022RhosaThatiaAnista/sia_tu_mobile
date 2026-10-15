@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
 import 'login_page.dart';
 import 'siswa_page.dart';
+import 'surat_masuk_page.dart';
+import 'surat_keluar_page.dart';
 
 class GuruPage extends StatefulWidget {
   const GuruPage({super.key});
@@ -304,7 +306,12 @@ class _GuruPageState extends State<GuruPage> {
                     'Surat Masuk',
                     false,
                     () {
-                      _comingSoon('Surat Masuk');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SuratMasukPage(),
+                        ),
+                      );
                     },
                   ),
 
@@ -313,7 +320,12 @@ class _GuruPageState extends State<GuruPage> {
                     'Surat Keluar',
                     false,
                     () {
-                      _comingSoon('Surat Keluar');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SuratKeluarPage(),
+                          ),
+                        );
                     },
                   ),
 
@@ -474,7 +486,12 @@ class _GuruPageState extends State<GuruPage> {
               'Surat Masuk',
               () {
                 Navigator.pop(context);
-                _comingSoon('Surat Masuk');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SuratMasukPage(),
+                  ),
+                );
               },
             ),
 
@@ -483,7 +500,12 @@ class _GuruPageState extends State<GuruPage> {
               'Surat Keluar',
               () {
                 Navigator.pop(context);
-                _comingSoon('Surat Keluar');
+                Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SuratKeluarPage(),
+                          ),
+                        );
               },
             ),
 

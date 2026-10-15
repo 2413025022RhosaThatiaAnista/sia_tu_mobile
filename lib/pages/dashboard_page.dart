@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'siswa_page.dart';
 import 'guru_page.dart';
+import 'surat_masuk_page.dart';
+import 'laporan_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -162,9 +164,11 @@ class DashboardPage extends StatelessWidget {
                 () {
                   Navigator.pop(context);
 
-                  _comingSoon(
+                  Navigator.push(
                     context,
-                    'Surat Masuk',
+                    MaterialPageRoute(
+                      builder: (_) => const SuratMasukPage(),
+                    ),
                   );
                 },
               ),
@@ -194,9 +198,11 @@ class DashboardPage extends StatelessWidget {
                 () {
                   Navigator.pop(context);
 
-                  _comingSoon(
+                  Navigator.push(
                     context,
-                    'Laporan',
+                    MaterialPageRoute(
+                      builder: (_) => const LaporanPage(),
+                    ),
                   );
                 },
               ),
@@ -406,9 +412,11 @@ class DashboardPage extends StatelessWidget {
             'Surat Masuk',
             false,
             () {
-              _comingSoon(
+              Navigator.push(
                 context,
-                'Surat Masuk',
+                MaterialPageRoute(
+                  builder: (_) => const SuratMasukPage(),
+                ),
               );
             },
           ),
@@ -434,9 +442,11 @@ class DashboardPage extends StatelessWidget {
             'Laporan',
             false,
             () {
-              _comingSoon(
+              Navigator.push(
                 context,
-                'Laporan',
+                MaterialPageRoute(
+                  builder: (_) => const LaporanPage(),
+                ),
               );
             },
           ),

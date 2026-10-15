@@ -1,4 +1,7 @@
 
+import 'dart:convert';
+import 'dart:html' as html;
+
 import 'package:flutter/material.dart';
 
 import 'login_page.dart';
@@ -92,6 +95,64 @@ class _LaporanPageState extends State<LaporanPage> {
   int get _jumlahKeluar => _dataLaporan
       .where((e) => e['jenis'] == 'Surat Keluar')
       .length;
+
+  // Mengunduh data laporan yang sedang tampil (mengikuti pencarian dan filter).
+  // Fitur ini ditujukan untuk Flutter Web yang dijalankan melalui browser.
+  void _downloadCsv() {
+    final data = _filteredData;
+
+    if (data.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tidak ada data laporan untuk diunduh.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    String escapeCsv(String value) {
+      final escaped = value.replaceAll('"', '""');
+      return '"$escaped"';
+    }
+
+    final rows = <List<String>>[
+      ['No.', 'Jenis Surat', 'Nomor Surat', 'Tanggal', 'Perihal', 'Asal / Tujuan', 'Status'],
+      for (var i = 0; i < data.length; i++)
+        [
+          '${i + 1}',
+          data[i]['jenis'] ?? '',
+          data[i]['nomor'] ?? '',
+          data[i]['tanggal'] ?? '',
+          data[i]['perihal'] ?? '',
+          data[i]['asalTujuan'] ?? '',
+          data[i]['status'] ?? '',
+        ],
+    ];
+
+    final csv = rows
+        .map((row) => row.map(escapeCsv).join(','))
+        .join('\r\n');
+
+    // BOM membantu Microsoft Excel mengenali teks UTF-8 dengan benar.
+    final bytes = utf8.encode('\uFEFF$csv');
+    final blob = html.Blob([bytes], 'text/csv;charset=utf-8;');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+
+    html.AnchorElement(href: url)
+      ..setAttribute('download', 'laporan_surat.csv')
+      ..style.display = 'none'
+      ..click();
+
+    html.Url.revokeObjectUrl(url);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('File laporan berhasil disiapkan untuk diunduh.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -723,6 +784,27 @@ class _LaporanPageState extends State<LaporanPage> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton.icon(
+              onPressed: _filteredData.isEmpty ? null : _downloadCsv,
+              icon: const Icon(Icons.download, size: 19),
+              label: const Text('Download CSV'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: navy,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: const Color(0xFFCBD5E1),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 13,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 14),
           if (_filteredData.isEmpty)

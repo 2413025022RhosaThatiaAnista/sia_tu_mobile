@@ -96,8 +96,8 @@ class _LaporanPageState extends State<LaporanPage> {
       .where((e) => e['jenis'] == 'Surat Keluar')
       .length;
 
-  // Mengunduh data laporan yang sedang tampil (mengikuti pencarian dan filter).
-  // Fitur ini ditujukan untuk Flutter Web yang dijalankan melalui browser.
+  // Mengunduh data yang sedang tampil setelah pencarian dan filter.
+  // Catatan: fitur ini berlaku untuk Flutter Web (Chrome).
   void _downloadCsv() {
     final data = _filteredData;
 
@@ -112,12 +112,19 @@ class _LaporanPageState extends State<LaporanPage> {
     }
 
     String escapeCsv(String value) {
-      final escaped = value.replaceAll('"', '""');
-      return '"$escaped"';
+      return '"${value.replaceAll('"', '""')}"';
     }
 
     final rows = <List<String>>[
-      ['No.', 'Jenis Surat', 'Nomor Surat', 'Tanggal', 'Perihal', 'Asal / Tujuan', 'Status'],
+      [
+        'No.',
+        'Jenis Surat',
+        'Nomor Surat',
+        'Tanggal',
+        'Perihal',
+        'Asal / Tujuan',
+        'Status',
+      ],
       for (var i = 0; i < data.length; i++)
         [
           '${i + 1}',
@@ -134,9 +141,9 @@ class _LaporanPageState extends State<LaporanPage> {
         .map((row) => row.map(escapeCsv).join(','))
         .join('\r\n');
 
-    // BOM membantu Microsoft Excel mengenali teks UTF-8 dengan benar.
+    // BOM agar karakter bahasa Indonesia terbaca dengan baik di Excel.
     final bytes = utf8.encode('\uFEFF$csv');
-    final blob = html.Blob([bytes], 'text/csv;charset=utf-8;');
+    final blob = html.Blob([bytes], 'text/csv;charset=utf-8');
     final url = html.Url.createObjectUrlFromBlob(blob);
 
     html.AnchorElement(href: url)
@@ -148,7 +155,7 @@ class _LaporanPageState extends State<LaporanPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('File laporan berhasil disiapkan untuk diunduh.'),
+        content: Text('File laporan berhasil diunduh.'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -763,7 +770,29 @@ class _LaporanPageState extends State<LaporanPage> {
           ),
           const SizedBox(height: 20),
           _buildFilters(mobile),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton.icon(
+              onPressed: _filteredData.isEmpty ? null : _downloadCsv,
+              icon: const Icon(Icons.download, size: 18),
+              label: const Text('Download CSV'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: navy,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.grey.shade300,
+                disabledForegroundColor: Colors.grey.shade600,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 13,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
           Row(
             children: [
               const Expanded(
@@ -784,27 +813,6 @@ class _LaporanPageState extends State<LaporanPage> {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton.icon(
-              onPressed: _filteredData.isEmpty ? null : _downloadCsv,
-              icon: const Icon(Icons.download, size: 19),
-              label: const Text('Download CSV'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: navy,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: const Color(0xFFCBD5E1),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 13,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
           ),
           const SizedBox(height: 14),
           if (_filteredData.isEmpty)

@@ -89,8 +89,7 @@ Pada pengembangan aplikasi dengan beberapa halaman, menu laporan perlu terhubung
 
 **Prompt yang digunakan**
 
-> Coba langsung sesuaikan di sini, dan kirimkan kode full yang benar.
-
+> Coba benarkan kode ini,potongan yang salah
 **Hasil awal dari AI**
 
 AI membantu memberikan saran penyesuaian kode untuk mengarahkan menu Laporan menuju halaman `LaporanPage()`. Saran tersebut mencakup penyesuaian pemanggilan halaman dan navigasi dari bagian antarmuka yang menyediakan menu laporan.
@@ -237,23 +236,7 @@ Pengembang bertanggung jawab untuk memastikan bahwa:
 - Pembagian peran AI dan pengembang menggambarkan proses pengerjaan yang sebenarnya.
 - Contoh prompt yang dicantumkan relevan dengan bantuan AI yang digunakan.
 - Klaim mengenai fitur dan pengujian didukung oleh implementasi atau hasil pemeriksaan yang nyata.
-- Kode dan dokumentasi akhir telah diperiksa sebelum diserahkan.
+- Kode dan dokumentasi akhir telah diperiksagit status sebelum diserahkan.
 
-Dokumen ini disusun untuk memberikan gambaran yang jelas mengenai penggunaan AI dalam proyek dan untuk mendukung proses evaluasi akademik yang transparan.
 
-## 8. Identitas Pengembang
-
-**Nama Lengkap:** [Isi nama lengkap]  
-**NIM:** [Isi NIM]  
-**Program Studi:** [Isi program studi]  
-**Mata Kuliah:** [Isi nama mata kuliah]  
-**Judul Proyek:** SIA-TU SEKOLAH — Sistem Informasi Tata Usaha Sekolah  
-**Repositori GitHub:** https://github.com/2413025022RhosaThatiaAnista/sia_tu_mobile  
-**Tanggal Penyusunan:** [Isi tanggal]
-
----
-
-**Pernyataan akhir**
-
-Deklarasi penggunaan AI ini dibuat sebagai dokumentasi pendukung proyek SIA-TU SEKOLAH. Isi deklarasi akan disesuaikan dengan proses pengembangan, implementasi, dan pengujian yang benar-benar dilakukan oleh pengembang.
 

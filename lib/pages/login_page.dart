@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
 
@@ -11,7 +12,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController =
       TextEditingController();
-
   final TextEditingController passwordController =
       TextEditingController();
 
@@ -28,9 +28,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void showMessage(String message) {
     if (!mounted) return;
-
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -39,48 +37,36 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  void bukaPendaftaran() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RegisterPage(),
+      ),
+    );
+  }
+
   Future<void> login() async {
     if (isLoading) return;
 
-    final String username = usernameController.text.trim();
-    final String password = passwordController.text.trim();
-
-    // ==========================================================
-    // VALIDASI USERNAME
-    // ==========================================================
+    final username = usernameController.text.trim();
+    final password = passwordController.text;
 
     if (username.isEmpty) {
       showMessage('Username wajib diisi.');
       return;
     }
 
-    // ==========================================================
-    // VALIDASI PASSWORD
-    // ==========================================================
-
     if (password.isEmpty) {
       showMessage('Password wajib diisi.');
       return;
     }
 
-    // ==========================================================
-    // LOADING LOGIN
-    // ==========================================================
+    setState(() => isLoading = true);
 
-    setState(() {
-      isLoading = true;
-    });
-
-    // Simulasi proses autentikasi
-    await Future.delayed(
-      const Duration(milliseconds: 800),
-    );
+    await Future.delayed(const Duration(milliseconds: 800));
 
     if (!mounted) return;
-
-    // ==========================================================
-    // CEK AKUN
-    // ==========================================================
 
     if (username == 'admin' && password == 'admin123') {
       Navigator.pushReplacement(
@@ -90,13 +76,8 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } else {
-      setState(() {
-        isLoading = false;
-      });
-
-      showMessage(
-        'Username atau password salah.',
-      );
+      setState(() => isLoading = false);
+      showMessage('Username atau password salah.');
     }
   }
 
@@ -110,8 +91,7 @@ class _LoginPageState extends State<LoginPage> {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final bool desktop =
-                  constraints.maxWidth >= 800;
+              final desktop = constraints.maxWidth >= 800;
 
               return SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -132,8 +112,7 @@ class _LoginPageState extends State<LoginPage> {
                               height: 52,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                               child: const Icon(
                                 Icons.school,
@@ -154,9 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 25),
-
                       if (desktop)
                         SizedBox(
                           width: 1200,
@@ -165,9 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                         )
                       else
                         _mobileCard(),
-
                       const SizedBox(height: 28),
-
                       const Text(
                         'SIA-TU SEKOLAH 2026',
                         style: TextStyle(
@@ -187,29 +162,17 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
-  // DESKTOP CARD
-  // ============================================================
-
   Widget _desktopCard() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
       child: Row(
         children: [
-          Expanded(
-            child: _welcomePanel(),
-          ),
-          Expanded(
-            child: _loginPanel(),
-          ),
+          Expanded(child: _welcomePanel()),
+          Expanded(child: _loginPanel()),
         ],
       ),
     );
   }
-
-  // ============================================================
-  // MOBILE CARD
-  // ============================================================
 
   Widget _mobileCard() {
     return ClipRRect(
@@ -223,10 +186,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
-  // ============================================================
-  // WELCOME DESKTOP
-  // ============================================================
 
   Widget _welcomePanel() {
     return Container(
@@ -250,13 +209,11 @@ class _LoginPageState extends State<LoginPage> {
               width: 430,
               height: 430,
               decoration: BoxDecoration(
-                color:
-                    Colors.white.withValues(alpha: 0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
             ),
           ),
-
           Positioned(
             left: -90,
             bottom: -100,
@@ -268,13 +225,11 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF3296BB)
                       .withValues(alpha: 0.85),
-                  borderRadius:
-                      BorderRadius.circular(130),
+                  borderRadius: BorderRadius.circular(130),
                 ),
               ),
             ),
           ),
-
           Positioned(
             left: 35,
             bottom: 15,
@@ -282,14 +237,11 @@ class _LoginPageState extends State<LoginPage> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color:
-                    Colors.white.withValues(alpha: 0.10),
-                borderRadius:
-                    BorderRadius.circular(25),
+                color: Colors.white.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(25),
               ),
             ),
           ),
-
           Positioned(
             right: 35,
             bottom: 22,
@@ -297,19 +249,16 @@ class _LoginPageState extends State<LoginPage> {
               width: 58,
               height: 58,
               decoration: BoxDecoration(
-                color:
-                    Colors.white.withValues(alpha: 0.10),
+                color: Colors.white.withValues(alpha: 0.10),
                 shape: BoxShape.circle,
               ),
             ),
           ),
-
           Center(
             child: Padding(
               padding: const EdgeInsets.all(35),
               child: Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Transform.rotate(
                     angle: -0.2,
@@ -318,23 +267,16 @@ class _LoginPageState extends State<LoginPage> {
                       height: 90,
                       decoration: const BoxDecoration(
                         color: Color(0xFF7298BA),
-                        borderRadius:
-                            BorderRadius.only(
-                          topLeft:
-                              Radius.circular(50),
-                          topRight:
-                              Radius.circular(10),
-                          bottomLeft:
-                              Radius.circular(10),
-                          bottomRight:
-                              Radius.circular(50),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(50),
+                          topRight: Radius.circular(10),
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(50),
                         ),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 15),
-
                   const Text(
                     'WELCOME',
                     textAlign: TextAlign.center,
@@ -345,21 +287,16 @@ class _LoginPageState extends State<LoginPage> {
                       letterSpacing: 1,
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   Container(
                     width: 95,
                     height: 6,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFF963F),
-                      borderRadius:
-                          BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-
                   const SizedBox(height: 28),
-
                   const Text(
                     'Silahkan masuk ke dalam sistem menggunakan akun '
                     'administrator Tata\n'
@@ -379,10 +316,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
-  // ============================================================
-  // WELCOME MOBILE
-  // ============================================================
 
   Widget _welcomePanelMobile() {
     return Container(
@@ -408,13 +341,11 @@ class _LoginPageState extends State<LoginPage> {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color:
-                    Colors.white.withValues(alpha: 0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
             ),
           ),
-
           Positioned(
             left: -70,
             bottom: -70,
@@ -426,13 +357,11 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF3296BB)
                       .withValues(alpha: 0.85),
-                  borderRadius:
-                      BorderRadius.circular(130),
+                  borderRadius: BorderRadius.circular(130),
                 ),
               ),
             ),
           ),
-
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -440,8 +369,7 @@ class _LoginPageState extends State<LoginPage> {
                 vertical: 15,
               ),
               child: Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Transform.rotate(
                     angle: -0.2,
@@ -450,23 +378,16 @@ class _LoginPageState extends State<LoginPage> {
                       height: 65,
                       decoration: const BoxDecoration(
                         color: Color(0xFF7298BA),
-                        borderRadius:
-                            BorderRadius.only(
-                          topLeft:
-                              Radius.circular(40),
-                          topRight:
-                              Radius.circular(8),
-                          bottomLeft:
-                              Radius.circular(8),
-                          bottomRight:
-                              Radius.circular(40),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(40),
+                          topRight: Radius.circular(8),
+                          bottomLeft: Radius.circular(8),
+                          bottomRight: Radius.circular(40),
                         ),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
                   const Text(
                     'WELCOME',
                     textAlign: TextAlign.center,
@@ -477,24 +398,18 @@ class _LoginPageState extends State<LoginPage> {
                       letterSpacing: 1,
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
                   Container(
                     width: 70,
                     height: 5,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFF963F),
-                      borderRadius:
-                          BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-
                   const SizedBox(height: 13),
-
                   const Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
                     child: Text(
                       'Silahkan masuk ke dalam sistem menggunakan akun '
                       'administrator Tata Usaha Anda untuk mulai '
@@ -516,10 +431,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
-  // LOGIN DESKTOP
-  // ============================================================
-
   Widget _loginPanel() {
     return Container(
       color: Colors.white,
@@ -538,20 +449,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ============================================================
-  // LOGIN MOBILE
-  // ============================================================
-
   Widget _loginPanelMobile() {
     return Container(
       width: double.infinity,
       color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(
-        22,
-        28,
-        22,
-        25,
-      ),
+      padding: const EdgeInsets.fromLTRB(22, 28, 22, 25),
       child: _loginForm(
         titleSize: 28,
         subtitleSize: 13,
@@ -562,10 +464,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
-  // ============================================================
-  // LOGIN FORM
-  // ============================================================
 
   Widget _loginForm({
     required double titleSize,
@@ -586,9 +484,7 @@ class _LoginPageState extends State<LoginPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-
         const SizedBox(height: 8),
-
         Text(
           'Masukkan kredensial otentikasi resmi Anda di bawah ini',
           style: TextStyle(
@@ -596,13 +492,7 @@ class _LoginPageState extends State<LoginPage> {
             fontSize: subtitleSize,
           ),
         ),
-
         const SizedBox(height: 30),
-
-        // ======================================================
-        // USERNAME
-        // ======================================================
-
         TextField(
           controller: usernameController,
           textInputAction: TextInputAction.next,
@@ -616,26 +506,22 @@ class _LoginPageState extends State<LoginPage> {
               Icons.person,
               color: Color(0xFF5C3C91),
             ),
-            contentPadding:
-                const EdgeInsets.symmetric(
+            contentPadding: const EdgeInsets.symmetric(
               vertical: 18,
               horizontal: 15,
             ),
             border: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: Color(0xFFD1DCE8),
                 width: 1.2,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: Color(0xFF287EB4),
                 width: 1.5,
@@ -643,13 +529,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-
         const SizedBox(height: 15),
-
-        // ======================================================
-        // PASSWORD
-        // ======================================================
-
         TextField(
           controller: passwordController,
           obscureText: hidePassword,
@@ -678,26 +558,22 @@ class _LoginPageState extends State<LoginPage> {
                 color: const Color(0xFF9AAAC0),
               ),
             ),
-            contentPadding:
-                const EdgeInsets.symmetric(
+            contentPadding: const EdgeInsets.symmetric(
               vertical: 18,
               horizontal: 15,
             ),
             border: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: Color(0xFFD1DCE8),
                 width: 1.2,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: Color(0xFF287EB4),
                 width: 1.5,
@@ -705,13 +581,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-
         const SizedBox(height: 12),
-
-        // ======================================================
-        // REMEMBER ME
-        // ======================================================
-
         Row(
           children: [
             Checkbox(
@@ -720,66 +590,49 @@ class _LoginPageState extends State<LoginPage> {
                   ? null
                   : (value) {
                       setState(() {
-                        rememberMe =
-                            value ?? false;
+                        rememberMe = value ?? false;
                       });
                     },
-              activeColor:
-                  const Color(0xFF1D4D7A),
+              activeColor: const Color(0xFF1D4D7A),
             ),
-
             Expanded(
               child: Text(
                 'Ingat Sesi',
                 style: TextStyle(
-                  color:
-                      const Color(0xFF91A5BF),
+                  color: const Color(0xFF91A5BF),
                   fontSize: bottomFontSize,
                 ),
               ),
             ),
-
             TextButton(
               onPressed: isLoading
                   ? null
-                  : () {
-                      showMessage(
+                  : () => showMessage(
                         'Fitur lupa password belum tersedia.',
-                      );
-                    },
+                      ),
               child: Text(
                 'Lupa Password?',
                 style: TextStyle(
-                  color:
-                      const Color(0xFF91A5BF),
+                  color: const Color(0xFF91A5BF),
                   fontSize: bottomFontSize,
                 ),
               ),
             ),
           ],
         ),
-
         const SizedBox(height: 8),
-
-        // ======================================================
-        // LOGIN BUTTON
-        // ======================================================
-
         SizedBox(
           width: double.infinity,
           height: buttonHeight,
           child: ElevatedButton(
             onPressed: isLoading ? null : login,
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  const Color(0xFF1C4D79),
+              backgroundColor: const Color(0xFF1C4D79),
               foregroundColor: Colors.white,
-              disabledBackgroundColor:
-                  const Color(0xFF7895AD),
+              disabledBackgroundColor: const Color(0xFF7895AD),
               elevation: 7,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(35),
+                borderRadius: BorderRadius.circular(35),
               ),
             ),
             child: isLoading
@@ -788,9 +641,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: 23,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
-                      valueColor:
-                          AlwaysStoppedAnimation<
-                              Color>(
+                      valueColor: AlwaysStoppedAnimation<Color>(
                         Colors.white,
                       ),
                     ),
@@ -799,27 +650,18 @@ class _LoginPageState extends State<LoginPage> {
                     'LOGIN',
                     style: TextStyle(
                       fontSize: buttonFontSize,
-                      fontWeight:
-                          FontWeight.bold,
+                      fontWeight: FontWeight.bold,
                       letterSpacing: 2,
                     ),
                   ),
           ),
         ),
-
         const SizedBox(height: 25),
-
         const Divider(
           color: Color(0xFFE7EDF3),
           thickness: 1,
         ),
-
         const SizedBox(height: 20),
-
-        // ======================================================
-        // DAFTAR
-        // ======================================================
-
         Center(
           child: Wrap(
             alignment: WrapAlignment.center,
@@ -827,28 +669,22 @@ class _LoginPageState extends State<LoginPage> {
               Text(
                 'Belum memiliki akses sistem administrasi? ',
                 style: TextStyle(
-                  color:
-                      const Color(0xFF91A5BF),
+                  color: const Color(0xFF91A5BF),
                   fontSize: bottomFontSize,
                 ),
               ),
-
-              GestureDetector(
-                onTap: isLoading
-                    ? null
-                    : () {
-                        showMessage(
-                          'Halaman pendaftaran belum tersedia.',
-                        );
-                      },
-                child: Text(
-                  'Daftar Sini',
-                  style: TextStyle(
-                    color:
-                        const Color(0xFF193F68),
-                    fontSize: bottomFontSize,
-                    fontWeight:
-                        FontWeight.bold,
+              InkWell(
+                onTap: isLoading ? null : bukaPendaftaran,
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    'Daftar Sini',
+                    style: TextStyle(
+                      color: const Color(0xFF193F68),
+                      fontSize: bottomFontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -856,6 +692,208 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ============================================================
+// HALAMAN PENDAFTARAN
+// ============================================================
+
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final formKey = GlobalKey<FormState>();
+  final namaController = TextEditingController();
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+  final konfirmasiController = TextEditingController();
+
+  bool hidePassword = true;
+  bool hideKonfirmasi = true;
+
+  @override
+  void dispose() {
+    namaController.dispose();
+    usernameController.dispose();
+    passwordController.dispose();
+    konfirmasiController.dispose();
+    super.dispose();
+  }
+
+  void daftar() {
+    if (!(formKey.currentState?.validate() ?? false)) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Form valid, tetapi akun belum disimpan. '
+          'Database belum terhubung.',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF2F83BA),
+      appBar: AppBar(
+        title: const Text('Pendaftaran Admin'),
+        backgroundColor: const Color(0xFF193F68),
+        foregroundColor: Colors.white,
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Icon(
+                        Icons.school,
+                        size: 52,
+                        color: Color(0xFF193F68),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Daftar Akun Admin',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF193F68),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      TextFormField(
+                        controller: namaController,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'Nama Lengkap',
+                          prefixIcon: Icon(Icons.person),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) =>
+                            value == null || value.trim().isEmpty
+                                ? 'Nama lengkap wajib diisi.'
+                                : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: usernameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Username',
+                          prefixIcon: Icon(Icons.account_circle),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) =>
+                            value == null || value.trim().isEmpty
+                                ? 'Username wajib diisi.'
+                                : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: hidePassword,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: const Icon(Icons.lock),
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                hidePassword = !hidePassword;
+                              });
+                            },
+                            icon: Icon(
+                              hidePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                          ),
+                        ),
+                        validator: (value) =>
+                            value == null || value.length < 6
+                                ? 'Password minimal 6 karakter.'
+                                : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: konfirmasiController,
+                        obscureText: hideKonfirmasi,
+                        decoration: InputDecoration(
+                          labelText: 'Konfirmasi Password',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                hideKonfirmasi = !hideKonfirmasi;
+                              });
+                            },
+                            icon: Icon(
+                              hideKonfirmasi
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                          ),
+                        ),
+                        validator: (value) =>
+                            value != passwordController.text
+                                ? 'Konfirmasi password tidak cocok.'
+                                : null,
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: daftar,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1C4D79),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: const Text(
+                            'DAFTAR',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextButton.icon(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text('Kembali ke Login'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

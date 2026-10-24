@@ -762,6 +762,9 @@ class DashboardPage extends StatelessWidget {
                     ),
                   ],
                 ),
+
+              const SizedBox(height: 25),
+              const CalendarSection(),
             ],
           ),
         );
@@ -1888,3 +1891,221 @@ class DonutPainter extends CustomPainter {
     return false;
   }
 }
+
+// ============================================================
+// KALENDER DASHBOARD
+// ============================================================
+
+class CalendarSection extends StatefulWidget {
+  const CalendarSection({super.key});
+
+  @override
+  State<CalendarSection> createState() => _CalendarSectionState();
+}
+
+class _CalendarSectionState extends State<CalendarSection> {
+  static const Color navy = Color(0xFF193F68);
+  static const Color textDark = Color(0xFF34445B);
+  static const Color textGrey = Color(0xFF71839D);
+
+  DateTime displayedMonth = DateTime.now();
+  final DateTime today = DateTime.now();
+
+  static const List<String> _monthNames = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+  ];
+
+  static const List<String> _weekdays = [
+    'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min',
+  ];
+
+  void _changeMonth(int amount) {
+    setState(() {
+      displayedMonth = DateTime(
+        displayedMonth.year,
+        displayedMonth.month + amount,
+        1,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final firstDay = DateTime(
+      displayedMonth.year,
+      displayedMonth.month,
+      1,
+    );
+    final startingOffset = firstDay.weekday - 1;
+    final daysInMonth = DateTime(
+      displayedMonth.year,
+      displayedMonth.month + 1,
+      0,
+    ).day;
+    final mobile = MediaQuery.of(context).size.width < 600;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(mobile ? 16 : 25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(17),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.calendar_month, color: navy, size: 28),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'KALENDER AKADEMIK',
+                  style: TextStyle(
+                    color: textDark,
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () => setState(() {
+                  displayedMonth = DateTime.now();
+                }),
+                child: const Text('Hari ini'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              IconButton(
+                tooltip: 'Bulan sebelumnya',
+                onPressed: () => _changeMonth(-1),
+                icon: const Icon(Icons.chevron_left, color: navy),
+              ),
+              Expanded(
+                child: Text(
+                  '${_monthNames[displayedMonth.month - 1]} ${displayedMonth.year}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: navy,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Bulan berikutnya',
+                onPressed: () => _changeMonth(1),
+                icon: const Icon(Icons.chevron_right, color: navy),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: _weekdays.map((day) {
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    day,
+                    style: TextStyle(
+                      color: day == 'Min' ? Colors.red : textGrey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: mobile ? 12 : 14,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 10),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 42,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              mainAxisSpacing: 6,
+              crossAxisSpacing: 4,
+              childAspectRatio: 1.15,
+            ),
+            itemBuilder: (context, index) {
+              final dayNumber = index - startingOffset + 1;
+              if (dayNumber < 1 || dayNumber > daysInMonth) {
+                return const SizedBox.shrink();
+              }
+
+              final date = DateTime(
+                displayedMonth.year,
+                displayedMonth.month,
+                dayNumber,
+              );
+              final isToday = date.year == today.year &&
+                  date.month == today.month &&
+                  date.day == today.day;
+              final isSunday = date.weekday == DateTime.sunday;
+
+              return Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isToday ? navy : Colors.transparent,
+                  borderRadius: BorderRadius.circular(9),
+                  border: isToday
+                      ? null
+                      : Border.all(color: const Color(0xFFE5EAF0)),
+                ),
+                child: Text(
+                  '$dayNumber',
+                  style: TextStyle(
+                    color: isToday
+                        ? Colors.white
+                        : isSunday
+                            ? Colors.red
+                            : textDark,
+                    fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                    fontSize: mobile ? 12 : 14,
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 15),
+          Row(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: navy,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Hari ini',
+                style: TextStyle(color: textGrey, fontSize: 12),
+              ),
+              const SizedBox(width: 16),
+              const Icon(Icons.circle, color: Colors.red, size: 10),
+              const SizedBox(width: 6),
+              const Text(
+                'Minggu',
+                style: TextStyle(color: textGrey, fontSize: 12),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+

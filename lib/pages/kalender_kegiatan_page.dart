@@ -405,10 +405,26 @@ class _KalenderAkademikState extends State<KalenderAkademik> {
                   final hasEvents =
                       _events.any((item) => _sameDay(item.date, date));
 
-                  return InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () => setState(() => _selectedDate = date),
-                    child: AnimatedContainer(
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: () async {
+                        setState(() => _selectedDate = date);
+
+                        // Klik tanggal langsung membuka formulir:
+                        // edit kegiatan yang sudah ada, atau tambah kegiatan baru.
+                        final eventsOnDate = _events
+                            .where((item) => _sameDay(item.date, date))
+                            .toList();
+
+                        if (eventsOnDate.isNotEmpty) {
+                          await _showEventForm(event: eventsOnDate.first);
+                        } else {
+                          await _showEventForm();
+                        }
+                      },
+                      child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
                       decoration: BoxDecoration(
                         color: isSelected
@@ -463,6 +479,7 @@ class _KalenderAkademikState extends State<KalenderAkademik> {
                             ),
                           ],
                         ],
+                      ),
                       ),
                     ),
                   );

@@ -4,6 +4,7 @@ import 'siswa_page.dart';
 import 'guru_page.dart';
 import 'surat_masuk_page.dart';
 import 'laporan_page.dart';
+import 'profile_admin_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -39,7 +40,7 @@ class DashboardPage extends StatelessWidget {
   Widget _desktopDashboard(BuildContext context) {
     return Column(
       children: [
-        _topHeader(),
+        _topHeader(context),
         Expanded(
           child: Row(
             children: [
@@ -224,7 +225,7 @@ class DashboardPage extends StatelessWidget {
   // HEADER
   // ============================================================
 
-  Widget _topHeader() {
+  Widget _topHeader(BuildContext context) {
     return Container(
       height: 112,
       color: navy,
@@ -278,69 +279,49 @@ class DashboardPage extends StatelessWidget {
             ),
           ),
 
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 15,
-              vertical: 10,
-            ),
-            decoration: BoxDecoration(
-              color: const Color(0xFF205B8B),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: const Color(0xFF286D9F),
+          InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileAdminPage()),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF205B8B),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFF286D9F)),
               ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 45,
-                  height: 45,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF3C87BE),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 27,
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                const Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Admin TU',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 45,
+                    height: 45,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF3C87BE), shape: BoxShape.circle,
                     ),
-                    SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.circle,
-                          color: Color(0xFF38D39F),
-                          size: 8,
-                        ),
+                    child: const Icon(Icons.person, color: Colors.white, size: 27),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(ProfileAdminData.nama,
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 2),
+                      const Row(children: [
+                        Icon(Icons.circle, color: Color(0xFF38D39F), size: 8),
                         SizedBox(width: 5),
-                        Text(
-                          'Online',
-                          style: TextStyle(
-                            color: Color(0xFF38D39F),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                        Text('Online', style: TextStyle(color: Color(0xFF38D39F), fontSize: 13)),
+                      ]),
+                    ],
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.edit_outlined, color: Colors.white70, size: 17),
+                ],
+              ),
             ),
           ),
         ],

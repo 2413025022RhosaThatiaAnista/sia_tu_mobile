@@ -1,6 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'dashboard_page.dart';
+
+const String baseUrl = 'http://localhost/sia_tu_api';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -64,20 +68,46 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => isLoading = true);
 
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    if (!mounted) return;
-
-    if (username == 'admin' && password == 'admin123') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const DashboardPage(),
-        ),
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/login.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
       );
-    } else {
-      setState(() => isLoading = false);
-      showMessage('Username atau password salah.');
+
+      final hasil = jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200 &&
+          hasil is Map &&
+          hasil['status'] == true) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const DashboardPage(),
+          ),
+        );
+      } else {
+        showMessage(
+          hasil is Map
+              ? (hasil['pesan'] ?? 'Username atau password salah.').toString()
+              : 'Username atau password salah.',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        showMessage(
+          'Tidak dapat terhubung ke server. Pastikan Apache dan MySQL aktif.',
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -716,6 +746,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   bool hidePassword = true;
   bool hideKonfirmasi = true;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -726,18 +757,68 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  void daftar() {
+  Future<void> daftar() async {
+    if (isLoading) return;
     if (!(formKey.currentState?.validate() ?? false)) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Form valid, tetapi akun belum disimpan. '
-          'Database belum terhubung.',
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    setState(() => isLoading = true);
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/register.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'nama': namaController.text.trim(),
+          'username': usernameController.text.trim(),
+          'email': '',
+          'password': passwordController.text,
+        }),
+      );
+
+      final hasil = jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200 &&
+          hasil is Map &&
+          hasil['status'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (hasil['pesan'] ?? 'Pendaftaran berhasil.').toString(),
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              hasil is Map
+                  ? (hasil['pesan'] ?? 'Pendaftaran gagal.').toString()
+                  : 'Pendaftaran gagal.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Tidak dapat terhubung ke server. Pastikan Apache dan MySQL aktif.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
   }
 
   @override
@@ -863,7 +944,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       SizedBox(
                         height: 52,
                         child: ElevatedButton(
-                          onPressed: daftar,
+                          onPressed: isLoading ? null : daftar,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1C4D79),
                             foregroundColor: Colors.white,
@@ -871,13 +952,24 @@ class _RegisterPageState extends State<RegisterPage> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          child: const Text(
-                            'DAFTAR',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text(
+                                  'DAFTAR',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.5,
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(height: 12),

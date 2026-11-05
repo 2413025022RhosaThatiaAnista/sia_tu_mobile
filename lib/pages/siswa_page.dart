@@ -1,7 +1,9 @@
 import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'dashboard_page.dart';
 import 'login_page.dart';
@@ -34,68 +36,85 @@ class _SiswaPageState extends State<SiswaPage> {
   // DATA SISWA
   // ============================================================
 
-  final List<Map<String, dynamic>> siswaList = [
-    {
-      'nama': 'Ahmad Fauzan',
-      'nis': '2026001',
-      'nisn': '0087654321',
-      'kelas': 'X IPA 1',
-      'jk': 'Laki-laki',
-      'tempatLahir': 'Jakarta',
-      'tanggalLahir': '12 Januari 2010',
-      'agama': 'Islam',
-      'alamat': 'Jakarta',
-      'namaOrtu': 'Budi Santoso',
-      'noHp': '081234567890',
-      'status': 'Aktif',
-      'foto': null,
-      'kk': null,
-      'akta': null,
-      'kartu': null,
-      'ijazah': null,
-      'lainnya': null,
-    },
-    {
-      'nama': 'Siti Aisyah',
-      'nis': '2026002',
-      'nisn': '0087654322',
-      'kelas': 'X IPA 1',
-      'jk': 'Perempuan',
-      'tempatLahir': 'Bandung',
-      'tanggalLahir': '20 Februari 2010',
-      'agama': 'Islam',
-      'alamat': 'Bandung',
-      'namaOrtu': 'Andi Wijaya',
-      'noHp': '081234567891',
-      'status': 'Aktif',
-      'foto': null,
-      'kk': null,
-      'akta': null,
-      'kartu': null,
-      'ijazah': null,
-      'lainnya': null,
-    },
-    {
-      'nama': 'Rizky Pratama',
-      'nis': '2026003',
-      'nisn': '0087654323',
-      'kelas': 'X IPS 1',
-      'jk': 'Laki-laki',
-      'tempatLahir': 'Depok',
-      'tanggalLahir': '15 Maret 2010',
-      'agama': 'Islam',
-      'alamat': 'Depok',
-      'namaOrtu': 'Rudi Pratama',
-      'noHp': '081234567892',
-      'status': 'Aktif',
-      'foto': null,
-      'kk': null,
-      'akta': null,
-      'kartu': null,
-      'ijazah': null,
-      'lainnya': null,
-    },
-  ];
+  bool isLoading = true;
+  String? loadError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSiswa();
+  }
+
+  Future<void> _loadSiswa() async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost/sia_tu_api/siswa.php'));
+      if (response.statusCode != 200) {
+        throw Exception('Server memberikan status ${response.statusCode}');
+      }
+      final result = jsonDecode(response.body);
+      if (result['status'] != true || result['data'] is! List) {
+        throw Exception(result['pesan'] ?? 'Format data tidak sesuai');
+      }
+      final List<Map<String, dynamic>> loaded =
+          List<Map<String, dynamic>>.from(
+        (result['data'] as List).map((item) => Map<String, dynamic>.from(item)),
+      );
+      for (final item in loaded) {
+        item['foto'] ??= null;
+        item['kk'] ??= null;
+        item['akta'] ??= null;
+        item['kartu'] ??= null;
+        item['ijazah'] ??= null;
+        item['lainnya'] ??= null;
+      }
+      if (!mounted) return;
+      setState(() {
+        siswaList
+          ..clear()
+          ..addAll(loaded);
+        isLoading = false;
+        loadError = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        loadError = e.toString();
+      });
+    }
+  }
+
+  Future<bool> _saveSiswaToDatabase(Map<String, dynamic> data) async {
+    try {
+      final payload = Map<String, dynamic>.from(data);
+      payload.remove('foto');
+      payload.remove('kk');
+      payload.remove('akta');
+      payload.remove('kartu');
+      payload.remove('ijazah');
+      payload.remove('lainnya');
+      final response = await http.post(
+        Uri.parse('http://localhost/sia_tu_api/siswa.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(payload),
+      );
+      final result = jsonDecode(response.body);
+      if (response.statusCode == 200 && result['status'] == true) {
+        await _loadSiswa();
+        return true;
+      }
+      throw Exception(result['pesan'] ?? 'Gagal menyimpan data');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menyimpan ke database: $e')),
+        );
+      }
+      return false;
+    }
+  }
+
+  final List<Map<String, dynamic>> siswaList = [];
 
   String searchText = '';
 
@@ -1978,7 +1997,7 @@ class _SiswaPageState extends State<SiswaPage> {
                   ),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
                     if (namaController
                         .text
                         .trim()
@@ -2028,22 +2047,17 @@ class _SiswaPageState extends State<SiswaPage> {
                       'lainnya': lainnya,
                     };
 
-                    setState(() {
-                      if (edit) {
-                        final index =
-                            siswaList.indexOf(
-                          siswa,
-                        );
+                    if (!edit) {
+                      final berhasil = await _saveSiswaToDatabase(data);
+                      if (!berhasil) return;
+                    } else {
+                      setState(() {
+                        final index = siswaList.indexOf(siswa);
+                        if (index >= 0) siswaList[index] = data;
+                      });
+                    }
 
-                        if (index >= 0) {
-                          siswaList[index] =
-                              data;
-                        }
-                      } else {
-                        siswaList.add(data);
-                      }
-                    });
-
+                    if (!mounted) return;
                     Navigator.pop(
                       dialogContext,
                     );

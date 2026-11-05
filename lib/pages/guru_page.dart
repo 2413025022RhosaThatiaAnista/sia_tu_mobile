@@ -1,7 +1,9 @@
 import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'dashboard_page.dart';
 import 'login_page.dart';
@@ -34,62 +36,87 @@ class _GuruPageState extends State<GuruPage> {
   // DATA GURU
   // ============================================================
 
-  final List<Map<String, dynamic>> guruList = [
-    {
-      'nama': 'Budi Santoso',
-      'nip': '198501012010011001',
-      'nuptk': '1234567890123456',
-      'jk': 'Laki-laki',
-      'mapel': 'Matematika',
-      'jabatan': 'Guru Mata Pelajaran',
-      'noHp': '081234567890',
-      'alamat': 'Jakarta',
-      'status': 'Aktif',
-      'foto': null,
-      'sk': null,
-      'ijazah': null,
-      'ktp': null,
-      'sertifikat': null,
-      'pembagianTugas': null,
-      'lainnya': null,
-    },
-    {
-      'nama': 'Siti Rahmawati',
-      'nip': '198702152011012002',
-      'nuptk': '1234567890123457',
-      'jk': 'Perempuan',
-      'mapel': 'Bahasa Indonesia',
-      'jabatan': 'Guru Mata Pelajaran',
-      'noHp': '081234567891',
-      'alamat': 'Bandung',
-      'status': 'Aktif',
-      'foto': null,
-      'sk': null,
-      'ijazah': null,
-      'ktp': null,
-      'sertifikat': null,
-      'pembagianTugas': null,
-      'lainnya': null,
-    },
-    {
-      'nama': 'Andi Wijaya',
-      'nip': '199001102015031003',
-      'nuptk': '1234567890123458',
-      'jk': 'Laki-laki',
-      'mapel': 'Bahasa Inggris',
-      'jabatan': 'Guru Mata Pelajaran',
-      'noHp': '081234567892',
-      'alamat': 'Depok',
-      'status': 'Aktif',
-      'foto': null,
-      'sk': null,
-      'ijazah': null,
-      'ktp': null,
-      'sertifikat': null,
-      'pembagianTugas': null,
-      'lainnya': null,
-    },
-  ];
+  bool isLoading = true;
+  String? loadError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGuru();
+  }
+
+  Future<void> _loadGuru() async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost/sia_tu_api/guru.php'));
+      if (response.statusCode != 200) {
+        throw Exception('Server memberikan status ${response.statusCode}');
+      }
+      final result = jsonDecode(response.body);
+      if (result['status'] != true || result['data'] is! List) {
+        throw Exception(result['pesan'] ?? 'Format data tidak sesuai');
+      }
+      final List<Map<String, dynamic>> loaded =
+          List<Map<String, dynamic>>.from(
+        (result['data'] as List).map((item) => Map<String, dynamic>.from(item)),
+      );
+      for (final item in loaded) {
+        item['foto'] ??= null;
+        item['sk'] ??= null;
+        item['ijazah'] ??= null;
+        item['ktp'] ??= null;
+        item['sertifikat'] ??= null;
+        item['pembagianTugas'] ??= null;
+        item['lainnya'] ??= null;
+      }
+      if (!mounted) return;
+      setState(() {
+        guruList
+          ..clear()
+          ..addAll(loaded);
+        isLoading = false;
+        loadError = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        loadError = e.toString();
+      });
+    }
+  }
+
+  Future<bool> _saveGuruToDatabase(Map<String, dynamic> data) async {
+    try {
+      final payload = Map<String, dynamic>.from(data);
+      payload.remove('foto');
+      payload.remove('sk');
+      payload.remove('ijazah');
+      payload.remove('ktp');
+      payload.remove('sertifikat');
+      payload.remove('pembagianTugas');
+      payload.remove('lainnya');
+      final response = await http.post(
+        Uri.parse('http://localhost/sia_tu_api/guru.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(payload),
+      );
+      final result = jsonDecode(response.body);
+      if (response.statusCode == 200 && result['status'] == true) {
+        await _loadGuru();
+        return true;
+      }
+      throw Exception(result['pesan'] ?? 'Gagal menyimpan data');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menyimpan ke database: $e')),
+        );
+      }
+      return false;
+    }
+  }
+
+  final List<Map<String, dynamic>> guruList = [];
 
   String searchText = '';
 
@@ -1893,7 +1920,7 @@ class _GuruPageState extends State<GuruPage> {
                 ),
 
                 ElevatedButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
                     if (namaController.text
                         .trim()
                         .isEmpty) {
@@ -1934,19 +1961,17 @@ class _GuruPageState extends State<GuruPage> {
                       'lainnya': lainnya,
                     };
 
-                    setState(() {
-                      if (edit) {
-                        final index =
-                            guruList.indexOf(guru);
+                    if (!edit) {
+                      final berhasil = await _saveGuruToDatabase(data);
+                      if (!berhasil) return;
+                    } else {
+                      setState(() {
+                        final index = guruList.indexOf(guru);
+                        if (index >= 0) guruList[index] = data;
+                      });
+                    }
 
-                        if (index >= 0) {
-                          guruList[index] = data;
-                        }
-                      } else {
-                        guruList.add(data);
-                      }
-                    });
-
+                    if (!mounted) return;
                     Navigator.pop(dialogContext);
 
                     ScaffoldMessenger.of(
